@@ -1,4 +1,5 @@
 using HtmxBlazor.Web.Components;
+using HtmxBlazor.Web.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,9 @@ app.UseHttpsRedirection();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
+
+app.MapTicks();
+
 app.MapRazorComponents<App>();
 
 app.Run();
