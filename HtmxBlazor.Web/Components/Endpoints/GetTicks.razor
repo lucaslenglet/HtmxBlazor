@@ -1,0 +1,24 @@
+﻿@attribute [Route(Route)]
+@code {
+    public const string Route = "/api/v2/ticks";
+    public const string EventTicksReceived = "ticks-received";
+    public const string QueryTriggerEventTicksReceived = "trigger-event";
+}
+
+@DateTime.Now.Ticks
+
+@code {
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+
+    [SupplyParameterFromQuery(Name = QueryTriggerEventTicksReceived)]
+    public bool TriggerEventTicksReceived { get; set; } = false;
+
+    protected override void OnInitialized()
+    {
+        if (TriggerEventTicksReceived)
+        {
+            HttpContext?.Response.Headers.Add("HX-Trigger", EventTicksReceived);
+        }
+    }
+}

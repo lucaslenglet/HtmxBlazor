@@ -9,7 +9,7 @@ public static class TicksEndpoints
         return application;
     }
 
-    public const string GetTickts = "/api/ticks";
+    public const string GetTickts = "/api/v1/ticks";
 
     private static long GetTicks() => DateTime.Now.Ticks;
 }

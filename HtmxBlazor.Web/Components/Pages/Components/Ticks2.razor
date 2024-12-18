@@ -1,0 +1,10 @@
+﻿<div hx-get="@GetTicks.Route"
+     hx-trigger="load, every 5s"
+     hx-swap="innerHTML"
+     @attributes=AdditionalAttributes>
+</div>
+
+@code {
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IDictionary<string, object>? AdditionalAttributes { get; set; }
+}
