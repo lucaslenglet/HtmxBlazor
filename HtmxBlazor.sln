@@ -5,6 +5,10 @@ VisualStudioVersion = 17.12.35527.113 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HtmxBlazor.Web", "HtmxBlazor.Web\HtmxBlazor.Web.csproj", "{0E00B712-D8E6-4530-A6E9-161374691D51}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HtmxBlazor.AppHost", "HtmxBlazor.AppHost\HtmxBlazor.AppHost.csproj", "{6416D1AC-2953-4766-B319-25B808E4D6FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HtmxBlazor.ServiceDefaults", "HtmxBlazor.ServiceDefaults\HtmxBlazor.ServiceDefaults.csproj", "{9B817C1F-DCD5-448D-9ED6-F986B83A01FE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{0E00B712-D8E6-4530-A6E9-161374691D51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E00B712-D8E6-4530-A6E9-161374691D51}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E00B712-D8E6-4530-A6E9-161374691D51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6416D1AC-2953-4766-B319-25B808E4D6FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6416D1AC-2953-4766-B319-25B808E4D6FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6416D1AC-2953-4766-B319-25B808E4D6FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6416D1AC-2953-4766-B319-25B808E4D6FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B817C1F-DCD5-448D-9ED6-F986B83A01FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B817C1F-DCD5-448D-9ED6-F986B83A01FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B817C1F-DCD5-448D-9ED6-F986B83A01FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B817C1F-DCD5-448D-9ED6-F986B83A01FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
