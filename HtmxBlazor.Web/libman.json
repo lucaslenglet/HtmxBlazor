@@ -1,5 +1,14 @@
 {
   "version": "3.0",
   "defaultProvider": "cdnjs",
-  "libraries": []
+  "libraries": [
+    {
+      "provider": "cdnjs",
+      "library": "htmx@2.0.4",
+      "destination": "wwwroot/lib/htmx/",
+      "files": [
+        "htmx.min.js"
+      ]
+    }
+  ]
 }

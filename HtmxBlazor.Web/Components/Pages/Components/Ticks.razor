@@ -1,0 +1,7 @@
+﻿@page "/ticks"
+
+<div hx-get="/ticks"
+     hx-trigger="every 5s"
+     hx-swap="outerHTML">
+    @(DateTime.Now.Ticks)
+</div>
