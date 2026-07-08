@@ -1,0 +1,21 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<button type="button"
+        hx-get="@CloseUrl"
+        hx-target="closest .hx-modal"
+        hx-swap="@HxSwap.OuterHtml.ToAttributeValue()"
+        @attributes="AdditionalAttributes">
+    @ChildContent
+</button>
+
+@code {
+    /// <summary>
+    /// A button that closes the enclosing <see cref="HxModal"/>. Use it in the modal
+    /// footer for "Cancel"/"Close" actions.
+    /// </summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>URL of the empty endpoint used to close the modal.</summary>
+    [Parameter] public string CloseUrl { get; set; } = HxModal.DefaultCloseRoute;
+}

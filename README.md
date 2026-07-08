@@ -53,6 +53,8 @@ HxTrigger.Load().Or(HxTrigger.Every(TimeSpan.FromSeconds(5)))
 | `HxLazy` | Deferred region: placeholder now, fragment fetched on `load` or on reveal. |
 | `HxPoll` | Polls a fragment URL on an interval (stops on HTTP 286). |
 | `HxIndicator` | Loading indicator shown while a request is in flight. |
+| `HxTabs` / `HxTab` | Server-driven tabs: each header GETs the fragment with `?tab=key`, the whole tab set is re-rendered (`outerHTML`). Only the active panel is rendered. |
+| `HxModal` / `HxModalRoot` / `HxModalClose` | Modal fetched as a fragment into the root container; closing swaps an empty response over it (`app.MapHxModalClose()`), no JS. |
 | `HxFragmentLayout` | Empty layout for *routable* fragment components (`@layout HxFragmentLayout`). |
 
 ### Fragment endpoints
@@ -81,10 +83,31 @@ app.MapRazorComponents<App>();
 app.MapFragments(); // your fragment endpoints
 ```
 
-And include htmx in the layout (already done via libman in the demo):
+And include htmx plus the library's default stylesheet (tabs/modal) in the layout:
 
 ```html
 <script src="lib/htmx/htmx.min.js" defer></script>
+<link rel="stylesheet" href="@Assets["_content/HtmxBlazor.Components/htmx-blazor.css"]" />
+```
+
+### Tabs & modal in a nutshell
+
+```razor
+@* Tabs: this component is served both inline and as a fragment endpoint *@
+<HxTabs Id="my-tabs" Url="/fragments/my-tabs" Active="@Active">
+    <HxTab Key="one" Title="First">…</HxTab>
+    <HxTab Key="two" Title="Second">…</HxTab>
+</HxTabs>
+
+@* Modal: a button fetches the modal fragment into the root *@
+<HxButton Get="/fragments/my-modal" Target="@HxModalRoot.DefaultTarget">Open</HxButton>
+<HxModalRoot />
+```
+
+```csharp
+app.MapHtmxGet<MyTabs>("/fragments/my-tabs", ctx => new { Active = ctx.Request.Query["tab"].ToString() });
+app.MapHtmxGet<MyModal>("/fragments/my-modal");
+app.MapHxModalClose(); // empty endpoint used by every modal close control
 ```
 
 ## Run the demo
@@ -94,4 +117,4 @@ dotnet run --project HtmxBlazor.Web
 # then open /demo
 ```
 
-The demo page showcases: a counter (POST + antiforgery header), active search (debounced input), lazy loading, polling, and a form whose response triggers a client-side event through `HX-Trigger` that another element listens to.
+The demo page showcases: a counter (POST + antiforgery header), active search (debounced input), lazy loading, polling, server-driven tabs, a modal, and a form whose response triggers a client-side event through `HX-Trigger` that another element listens to.

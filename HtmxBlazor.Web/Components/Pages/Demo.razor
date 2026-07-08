@@ -44,6 +44,18 @@
 </section>
 
 <section class="demo-card">
+    <h2>Tabs</h2>
+    <p>An <code>HxTabs</code>: each header GETs the same fragment with a different <code>?tab=</code>; only the active panel is rendered server-side.</p>
+    <DemoTabs />
+</section>
+
+<section class="demo-card">
+    <h2>Modal</h2>
+    <p>An <code>HxButton</code> fetches an <code>HxModal</code> fragment into the <code>HxModalRoot</code>; closing swaps it away via an empty endpoint.</p>
+    <HxButton Get="@DemoModal.Route" Target="@HxModalRoot.DefaultTarget">Open modal</HxButton>
+</section>
+
+<section class="demo-card">
     <h2>Form + server-triggered events</h2>
     <p>
         An <code>HxForm</code> POSTs the message (antiforgery hidden field included).
@@ -60,3 +72,5 @@
                Get="@SentCountFragment.Route"
                Trigger="@(HxTrigger.Load().Or(HxTrigger.On(GreetingFragment.EventMessageSent).From("body")))" />
 </section>
+
+<HxModalRoot />

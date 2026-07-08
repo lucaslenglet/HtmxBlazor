@@ -1,0 +1,96 @@
+/* Default styles for HtmxBlazor.Components — override freely. */
+
+/* ---- HxTabs ---- */
+
+.hx-tabs-nav {
+    display: flex;
+    gap: 0.25rem;
+    border-bottom: 2px solid #d0d0d0;
+}
+
+.hx-tab {
+    background: none;
+    border: none;
+    font: inherit;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    color: inherit;
+}
+
+    .hx-tab:hover {
+        border-bottom-color: #b0a0e8;
+    }
+
+.hx-tab-active {
+    border-bottom-color: #512bd4;
+    font-weight: 600;
+}
+
+.hx-tabs-panel {
+    padding: 0.75rem 0;
+}
+
+/* ---- HxModal ---- */
+
+.hx-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.hx-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.hx-modal-dialog {
+    position: relative;
+    background: #fff;
+    border-radius: 8px;
+    min-width: 20rem;
+    max-width: min(36rem, 90vw);
+    max-height: 85vh;
+    overflow: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.hx-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+    .hx-modal-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+.hx-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    color: inherit;
+}
+
+.hx-modal-body {
+    padding: 1rem;
+}
+
+.hx-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid #eee;
+}

@@ -1,0 +1,14 @@
+<HxModal Title="Hello from a fragment">
+    <ChildContent>
+        <p>This modal was fetched by htmx and swapped into the <code>HxModalRoot</code>.</p>
+        <p>Closing it (×, backdrop, or the button below) swaps an empty response over it — no JavaScript.</p>
+        <p><em>Rendered at @DateTime.Now.ToString("HH:mm:ss.fff")</em></p>
+    </ChildContent>
+    <Footer>
+        <HxModalClose>Close</HxModalClose>
+    </Footer>
+</HxModal>
+
+@code {
+    public const string Route = "/fragments/demo-modal";
+}

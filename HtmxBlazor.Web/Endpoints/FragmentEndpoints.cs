@@ -30,6 +30,15 @@ public static class FragmentEndpoints
 
         app.MapHtmxGet<SentCountFragment>(SentCountFragment.Route);
 
+        app.MapHtmxGet<DemoTabs>(DemoTabs.Route, context => new
+        {
+            Active = context.Request.Query["tab"].ToString(),
+        });
+
+        app.MapHtmxGet<DemoModal>(DemoModal.Route);
+
+        app.MapHxModalClose();
+
         return app;
     }
 }
