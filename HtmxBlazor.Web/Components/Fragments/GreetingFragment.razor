@@ -1,0 +1,19 @@
+@inherits HxComponentBase
+
+<p>👋 Hello, <strong>@Name</strong>!</p>
+
+@code {
+    public const string Route = "/fragments/greeting";
+    public const string EventMessageSent = "message-sent";
+
+    [Parameter] public string? Name { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (IsHtmxRequest)
+        {
+            Interlocked.Increment(ref SentCountFragment.MessagesSent);
+            TriggerClientEvent(EventMessageSent, new { name = Name });
+        }
+    }
+}

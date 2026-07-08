@@ -29,6 +29,8 @@ app.MapStaticAssets();
 
 app.MapTicks();
 
+app.MapFragments();
+
 app.MapRazorComponents<App>();
 
 app.Run();

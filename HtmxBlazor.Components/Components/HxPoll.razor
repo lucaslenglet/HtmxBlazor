@@ -1,0 +1,35 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<div hx-get="@Url"
+     hx-trigger="@BuildTrigger()"
+     hx-swap="@Swap.ToAttributeValue()"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>
+    /// Polls <see cref="Url"/> on a fixed interval and swaps the fragment into itself.
+    /// Polling stops automatically if the server answers with status code 286.
+    /// </summary>
+    [Parameter, EditorRequired] public string Url { get; set; } = default!;
+
+    /// <summary>The polling interval. Defaults to 5 seconds.</summary>
+    [Parameter] public TimeSpan Interval { get; set; } = TimeSpan.FromSeconds(5);
+
+    /// <summary>Whether to also load once immediately. Defaults to <c>true</c>.</summary>
+    [Parameter] public bool Immediate { get; set; } = true;
+
+    /// <summary>How the fragment is swapped in. Defaults to <see cref="HxSwap.InnerHtml"/>.</summary>
+    [Parameter] public HxSwap Swap { get; set; } = HxSwap.InnerHtml;
+
+    /// <summary>Initial content, shown until the first poll completes.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private string BuildTrigger()
+    {
+        var every = HxTrigger.Every(Interval);
+        return Immediate ? HxTrigger.Load().Or(every) : every;
+    }
+}

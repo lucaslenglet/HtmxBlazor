@@ -1,0 +1,62 @@
+@page "/demo"
+
+<PageTitle>HtmxBlazor.Components demo</PageTitle>
+
+<h1>HtmxBlazor.Components</h1>
+<p>
+    Every widget below is rendered with Blazor static SSR and made interactive by htmx —
+    no hand-written JavaScript.
+</p>
+
+<section class="demo-card">
+    <h2>Counter</h2>
+    <p>An <code>HxButton</code> POSTs to a fragment endpoint that re-renders the counter (antiforgery header included automatically).</p>
+    <CounterFragment Count="0" />
+</section>
+
+<section class="demo-card">
+    <h2>Active search</h2>
+    <p>An <code>HxElement</code> input debounced with the <code>HxTrigger</code> builder; results are rendered by the same component used for the initial page.</p>
+    <HxElement Tag="input"
+               type="search"
+               name="q"
+               placeholder="Search fruits…"
+               Get="@SearchFragment.Route"
+               Trigger="@(HxTrigger.On("input").Changed().Delay(TimeSpan.FromMilliseconds(300)))"
+               Target="#search-results" />
+    <div id="search-results">
+        <SearchFragment />
+    </div>
+</section>
+
+<section class="demo-card">
+    <h2>Lazy loading</h2>
+    <p>An <code>HxLazy</code> region: the page ships a placeholder, htmx fetches the slow fragment afterwards.</p>
+    <HxLazy Url="@SlowFragment.Route">
+        <Placeholder><em>Loading heavy content…</em></Placeholder>
+    </HxLazy>
+</section>
+
+<section class="demo-card">
+    <h2>Polling</h2>
+    <p>An <code>HxPoll</code> region refreshing a clock fragment every 2 seconds.</p>
+    <HxPoll Url="@ClockFragment.Route" Interval="TimeSpan.FromSeconds(2)" />
+</section>
+
+<section class="demo-card">
+    <h2>Form + server-triggered events</h2>
+    <p>
+        An <code>HxForm</code> POSTs the message (antiforgery hidden field included).
+        The response fragment raises a <code>@GreetingFragment.EventMessageSent</code> event via
+        <code>HX-Trigger</code>, which the badge below listens to in order to refresh itself.
+    </p>
+    <HxForm Post="@GreetingFragment.Route" Target="#greeting">
+        <input type="text" name="name" placeholder="Your name" required />
+        <button type="submit">Say hello</button>
+    </HxForm>
+    <div id="greeting"></div>
+    <HxElement Tag="span"
+               class="demo-badge"
+               Get="@SentCountFragment.Route"
+               Trigger="@(HxTrigger.Load().Or(HxTrigger.On(GreetingFragment.EventMessageSent).From("body")))" />
+</section>

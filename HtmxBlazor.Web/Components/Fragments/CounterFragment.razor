@@ -1,0 +1,14 @@
+<div id="counter" class="demo-inline">
+    <strong>@Count</strong>
+    <HxButton Post="@($"{Route}?count={Count + 1}")"
+              Target="#counter"
+              Swap="HxSwap.OuterHtml">
+        +1
+    </HxButton>
+</div>
+
+@code {
+    public const string Route = "/fragments/counter";
+
+    [Parameter] public int Count { get; set; }
+}

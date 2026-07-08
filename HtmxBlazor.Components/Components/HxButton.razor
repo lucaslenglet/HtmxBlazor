@@ -1,0 +1,37 @@
+@namespace HtmxBlazor.Components
+@inherits HxInteractiveComponentBase
+@inject IAntiforgery Antiforgery
+@inject IOptions<AntiforgeryOptions> AntiforgeryOptions
+
+<button type="button" @attributes="AllAttributes()" hx-headers="@_antiforgeryHeaders">@ChildContent</button>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Whether to send the antiforgery token as a request header on unsafe verbs
+    /// (POST/PUT/PATCH/DELETE). Enabled by default.
+    /// </summary>
+    [Parameter] public bool IncludeAntiforgery { get; set; } = true;
+
+    private string? _antiforgeryHeaders;
+
+    protected override void OnParametersSet()
+    {
+        _antiforgeryHeaders = null;
+
+        var usesUnsafeVerb = Post is not null || Put is not null || Patch is not null || Delete is not null;
+        if (!IncludeAntiforgery || !usesUnsafeVerb || HttpContext is null)
+        {
+            return;
+        }
+
+        var tokens = Antiforgery.GetAndStoreTokens(HttpContext);
+        if (tokens.RequestToken is not null)
+        {
+            var headerName = AntiforgeryOptions.Value.HeaderName ?? "RequestVerificationToken";
+            _antiforgeryHeaders = JsonSerializer.Serialize(
+                new Dictionary<string, string> { [headerName] = tokens.RequestToken });
+        }
+    }
+}

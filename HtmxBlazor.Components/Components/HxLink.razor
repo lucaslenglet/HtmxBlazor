@@ -1,0 +1,18 @@
+@namespace HtmxBlazor.Components
+@inherits HxInteractiveComponentBase
+
+<a href="@Href" hx-boost="@(Boost ? "true" : null)" @attributes="AllAttributes()">@ChildContent</a>
+
+@code {
+    /// <summary>
+    /// A navigation link. With <see cref="Boost"/> (the default), htmx intercepts the
+    /// click and swaps the response into the page body instead of doing a full reload,
+    /// while keeping a plain <c>&lt;a href&gt;</c> that still works without JavaScript.
+    /// </summary>
+    [Parameter, EditorRequired] public string? Href { get; set; }
+
+    /// <summary>Whether to use <c>hx-boost</c> on the link. Defaults to <c>true</c>.</summary>
+    [Parameter] public bool Boost { get; set; } = true;
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

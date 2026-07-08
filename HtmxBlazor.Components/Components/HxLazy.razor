@@ -1,0 +1,36 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<div hx-get="@Url"
+     hx-trigger="@(OnReveal ? RevealTrigger : LoadTrigger)"
+     hx-swap="@HxSwap.OuterHtml.ToAttributeValue()"
+     @attributes="AdditionalAttributes">
+    @if (Placeholder is not null)
+    {
+        @Placeholder
+    }
+    else
+    {
+        <span class="htmx-indicator">@PlaceholderText</span>
+    }
+</div>
+
+@code {
+    private static readonly string LoadTrigger = HxTrigger.Load();
+    private static readonly string RevealTrigger = HxTrigger.Revealed().Once();
+
+    /// <summary>
+    /// Defers the rendering of a heavy region: the placeholder is served with the page,
+    /// then htmx fetches <see cref="Url"/> and replaces the whole element with the fragment.
+    /// </summary>
+    [Parameter, EditorRequired] public string Url { get; set; } = default!;
+
+    /// <summary>Load when the element scrolls into view instead of immediately. Defaults to <c>false</c>.</summary>
+    [Parameter] public bool OnReveal { get; set; }
+
+    /// <summary>Content shown while the fragment is loading.</summary>
+    [Parameter] public RenderFragment? Placeholder { get; set; }
+
+    /// <summary>Text of the default placeholder when no <see cref="Placeholder"/> is provided.</summary>
+    [Parameter] public string PlaceholderText { get; set; } = "Loading…";
+}
