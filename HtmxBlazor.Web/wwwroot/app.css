@@ -65,3 +65,32 @@ h1:focus {
     background-color: #e8e8f8;
     font-size: 0.85rem;
 }
+
+.demo-feed {
+    max-height: 10rem;
+    overflow-y: auto;
+    border: 1px solid #e4e4e4;
+    border-radius: 6px;
+    padding: 0 1rem;
+}
+
+.demo-feed-item {
+    margin: 0;
+    padding: 0.4rem 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.demo-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+    .demo-items li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.35rem 0;
+        border-bottom: 1px dashed #eee;
+    }

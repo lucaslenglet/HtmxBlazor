@@ -1,0 +1,23 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<div class="hx-dropdown-backdrop"
+     hx-get="@DismissUrl"
+     hx-target="closest .hx-dropdown-panel"
+     hx-swap="@HxSwap.InnerHtml.ToAttributeValue()"></div>
+<div class="hx-dropdown-menu" role="menu" @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>
+    /// Content of an <see cref="HxDropdown"/> panel, served as a fragment. Renders a
+    /// transparent full-viewport backdrop (clicking outside clears the panel with an
+    /// empty swap) followed by the menu itself, typically a list of
+    /// <see cref="HxDropdownItem"/>.
+    /// </summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>URL of the empty endpoint used to close the panel.</summary>
+    [Parameter] public string DismissUrl { get; set; } = HxDismissEndpointExtensions.DefaultDismissRoute;
+}

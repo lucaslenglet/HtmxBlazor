@@ -1,0 +1,50 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<div id="@Id" class="hx-dropdown" @attributes="AdditionalAttributes">
+    <button type="button"
+            class="hx-dropdown-trigger"
+            aria-haspopup="menu"
+            hx-get="@Url"
+            hx-target="@PanelSelector"
+            hx-swap="@HxSwap.InnerHtml.ToAttributeValue()">@ChildContent</button>
+    <div id="@PanelId"
+         class="hx-dropdown-panel"
+         hx-get="@DismissUrl"
+         hx-trigger="@CloseTrigger"
+         hx-swap="@HxSwap.InnerHtml.ToAttributeValue()"></div>
+</div>
+
+@code {
+    /// <summary>
+    /// Name of the client event that closes every open dropdown. Fragment endpoints
+    /// invoked by menu items can raise it with
+    /// <c>TriggerClientEvent(HxDropdown.EventClose)</c> so the panel clears itself.
+    /// </summary>
+    public const string EventClose = "hx-dropdown-close";
+
+    private static readonly string CloseTrigger = HxTrigger.On(EventClose).From("body");
+
+    /// <summary>
+    /// A dropdown opened by fetching a fragment (an <see cref="HxDropdownPanel"/>) into
+    /// its panel. Closing is JavaScript-free: the panel clears itself with an empty swap,
+    /// either from the transparent backdrop rendered by <see cref="HxDropdownPanel"/>
+    /// (click outside) or when an <see cref="EventClose"/> event is raised through
+    /// <c>HX-Trigger</c> (item selected). Map the empty endpoint once with
+    /// <c>app.MapHxDismiss()</c>.
+    /// </summary>
+    [Parameter, EditorRequired] public string Id { get; set; } = default!;
+
+    /// <summary>Fragment endpoint URL serving the panel content.</summary>
+    [Parameter, EditorRequired] public string Url { get; set; } = default!;
+
+    /// <summary>Label of the trigger button.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>URL of the empty endpoint used to close the panel.</summary>
+    [Parameter] public string DismissUrl { get; set; } = HxDismissEndpointExtensions.DefaultDismissRoute;
+
+    private string PanelId => $"{Id}-panel";
+
+    private string PanelSelector => $"#{PanelId}";
+}

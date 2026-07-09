@@ -1,3 +1,4 @@
+using HtmxBlazor.Components;
 using HtmxBlazor.Components.Endpoints;
 using HtmxBlazor.Web.Components.Fragments;
 
@@ -37,7 +38,45 @@ public static class FragmentEndpoints
 
         app.MapHtmxGet<DemoModal>(DemoModal.Route);
 
+        app.MapHtmxGet<DemoFeed>(DemoFeed.Route, context => new
+        {
+            Page = int.TryParse(context.Request.Query["page"], out var feedPage) ? feedPage : 1,
+        });
+
+        app.MapHtmxGet<NotifyFragment>(NotifyFragment.Route, context => new
+        {
+            Variant = Enum.TryParse<HxToastVariant>(context.Request.Query["variant"], ignoreCase: true, out var variant)
+                ? variant
+                : HxToastVariant.Success,
+        });
+
+        app.MapHtmxGet<DemoConfirm>(DemoConfirm.Route, context => new
+        {
+            Item = context.Request.Query["item"].ToString(),
+        });
+
+        app.MapHtmxPost<ItemDeletedFragment>(ItemDeletedFragment.Route, context => new
+        {
+            Item = context.Request.Query["item"].ToString(),
+        });
+
+        app.MapHtmxGet<DemoDropdown>(DemoDropdown.Route);
+
+        app.MapHtmxGet<PickFragment>(PickFragment.Route, context => new
+        {
+            Choice = context.Request.Query["choice"].ToString(),
+        });
+
+        app.MapHtmxGet<DemoTable>(DemoTable.Route, context => new
+        {
+            Sort = context.Request.Query["sort"].ToString() is { Length: > 0 } sort ? sort : null,
+            Desc = bool.TryParse(context.Request.Query["desc"], out var desc) && desc,
+            Page = int.TryParse(context.Request.Query["page"], out var tablePage) ? tablePage : 1,
+        });
+
         app.MapHxModalClose();
+
+        app.MapHxDismiss();
 
         return app;
     }

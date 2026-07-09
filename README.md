@@ -57,6 +57,11 @@ HxTrigger.Load().Or(HxTrigger.Every(TimeSpan.FromSeconds(5)))
 | `HxIndicator` | Loading indicator shown while a request is in flight. |
 | `HxTabs` / `HxTab` | Server-driven tabs: each header GETs the fragment with `?tab=key`, the whole tab set is re-rendered (`outerHTML`). Only the active panel is rendered. |
 | `HxModal` / `HxModalRoot` / `HxModalClose` | Modal fetched as a fragment into the root container; closing swaps an empty response over it (`app.MapHxModalClose()`), no JS. |
+| `HxConfirm` | Confirmation modal: confirming POSTs the action (antiforgery header included) and swaps the response over the modal — an empty response closes it, out-of-band elements update the rest of the page. |
+| `HxInfiniteScroll` | Infinite list: a sentinel fetches the next page when it becomes visible (`intersect once`) and is replaced by it. |
+| `HxToast` / `HxToastRoot` | Notification prepended out-of-band (`hx-swap-oob`) into a global container; dismissed by the × or automatically through a delayed GET to the empty endpoint (`app.MapHxDismiss()`). |
+| `HxDropdown` / `HxDropdownPanel` / `HxDropdownItem` | Dropdown panel fetched as a fragment; closes on backdrop click or when an endpoint raises the `hx-dropdown-close` event through `HX-Trigger`. |
+| `HxTable` / `HxColumn` | Sortable, pageable table: the sort/page state travels in the URL and the whole table re-renders (`outerHTML` self-swap). The endpoint sorts and pages the data. |
 | `HxFragmentLayout` | Empty layout for *routable* fragment components (`@layout HxFragmentLayout`). |
 
 ### Fragment endpoints
@@ -112,6 +117,7 @@ And include htmx plus the library's default stylesheet (tabs/modal) in the layou
 app.MapHtmxGet<MyTabs>("/fragments/my-tabs", ctx => new { Active = ctx.Request.Query["tab"].ToString() });
 app.MapHtmxGet<MyModal>("/fragments/my-modal");
 app.MapHxModalClose(); // empty endpoint used by every modal close control
+app.MapHxDismiss();    // empty endpoint used by toasts and dropdowns
 ```
 
 ## Run the demo
@@ -121,4 +127,4 @@ dotnet run --project HtmxBlazor.Web
 # then open /demo
 ```
 
-The demo page showcases: a counter (POST + antiforgery header), active search (debounced input), lazy loading, polling, server-driven tabs, a modal, and a form whose response triggers a client-side event through `HX-Trigger` that another element listens to.
+The demo page showcases: a counter (POST + antiforgery header), active search (debounced input), lazy loading, polling, server-driven tabs, a modal, infinite scroll, out-of-band toasts, a confirm dialog updating a list out-of-band, a dropdown closed by a server-triggered event, a sortable paged table, and a form whose response triggers a client-side event through `HX-Trigger` that another element listens to.

@@ -54,7 +54,8 @@ HtmxBlazor.Components/
 │   └── Hx*.razor / Hx*.cs           # les composants publics
 ├── Endpoints/
 │   ├── HtmxEndpointRouteBuilderExtensions.cs  # MapHtmxGet/Post/Put/Patch/Delete<T>
-│   └── HxModalEndpointExtensions.cs           # MapHxModalClose()
+│   ├── HxModalEndpointExtensions.cs           # MapHxModalClose()
+│   └── HxDismissEndpointExtensions.cs         # MapHxDismiss() (endpoint vide partagé)
 ├── wwwroot/htmx-blazor.css          # styles par défaut (asset statique RCL)
 └── _Imports.razor
 ```
@@ -106,7 +107,7 @@ Réutiliser ces recettes pour tout nouveau composant.
 
 ### P1 — Auto-remplacement (`outerHTML` self-swap)
 Le fragment porte un `id` (ou est ciblé par `closest`), contient lui-même les contrôles qui le re-rendent, et l'état voyage dans l'URL.
-Utilisé par : compteur (démo), `HxTabs`. *C'est le pattern par défaut pour tout composant à état.*
+Utilisé par : compteur (démo), `HxTabs`, `HxTable` (tri + page dans l'URL, le serveur trie/pagine et le composant ne fait que rendre). *C'est le pattern par défaut pour tout composant à état.*
 
 ### P2 — Cible séparée (`hx-target`)
 Un élément déclencheur (input, bouton) vise un conteneur distinct par sélecteur CSS.
@@ -115,18 +116,20 @@ Utilisé par : recherche active, formulaire → `#greeting`.
 ### P3 — Placeholder différé
 La page livre un placeholder ; un trigger `load` ou `revealed once` va chercher le vrai contenu et remplace le placeholder (`outerHTML`).
 Utilisé par : `HxLazy`.
+Variante **scroll infini** (`HxInfiniteScroll`) : la sentinelle en fin de liste (`intersect once` — pas `revealed`, cf. §8) va chercher la page suivante et est remplacée par elle : nouveaux items + nouvelle sentinelle. Le composant ne rend son wrapper que hors requête htmx (`IsHtmxRequest`, en tolérant boost et history restore) pour que les réponses de fragment soient nues.
 
 ### P4 — Polling
 `hx-trigger="load, every Ns"` sur un conteneur qui se rafraîchit. Le serveur peut arrêter le polling en répondant **HTTP 286**.
 Utilisé par : `HxPoll`.
 
 ### P5 — Événements serveur (`HX-Trigger`)
-Un fragment signale un fait métier via `TriggerClientEvent("mon-event", detail)`. Ailleurs, des écouteurs `Trigger="@(HxTrigger.On("mon-event").From("body"))"` se rafraîchissent en réaction. Découplage total entre émetteur et écouteurs.
-Utilisé par : formulaire de la démo + badge compteur.
+Un fragment signale un fait métier via `TriggerClientEvent("mon-event", detail)`. Ailleurs, des écouteurs `Trigger="@(HxTrigger.On("mon-event").From("body"))"` se rafraîchissent en réaction. Découplage total entre émetteur et écouteurs. (L'événement est dispatché sur l'élément qui a fait la requête et **bulle** jusqu'à `body` — d'où le `from:body`.)
+Utilisé par : formulaire de la démo + badge compteur ; `HxDropdown` (le panneau écoute `hx-dropdown-close from:body` et se vide quand l'endpoint d'un item émet `HxDropdown.EventClose`).
 
 ### P6 — Conteneur global + fermeture par swap vide
-Un conteneur vide (`HxModalRoot`) reçoit des fragments à la demande. La **fermeture sans JS** : les contrôles de fermeture font un GET vers un endpoint qui renvoie une réponse vide en 200 (`MapHxModalClose`), swappée en `outerHTML` sur `closest .hx-modal` → l'élément disparaît du DOM.
-Utilisé par : `HxModal`. ⚠️ Répondre **200 + corps vide** (un 204 ne déclenche pas de swap).
+Un conteneur vide (`HxModalRoot`) reçoit des fragments à la demande. La **fermeture sans JS** : les contrôles de fermeture font un GET vers un endpoint qui renvoie une réponse vide en 200 (`MapHxModalClose`, ou `MapHxDismiss` — endpoint vide partagé), swappée en `outerHTML` sur `closest .hx-modal` → l'élément disparaît du DOM. La même réponse vide en `innerHTML` **vide** un conteneur au lieu de le supprimer.
+Utilisé par : `HxModal`, `HxConfirm` (variante : le bouton de confirmation POSTe l'action réelle en ciblant `closest .hx-modal` en `outerHTML` — une réponse au corps vide ferme la modale, et la réponse peut mettre à jour le reste de la page via P5 ou P8), `HxDropdown` (ouverture par GET dans le panneau, fermeture par swap vide via le backdrop ou l'événement P5), `HxToast` (auto-dismiss : `hx-trigger="load delay:5s"` + GET vide en `outerHTML` sur lui-même).
+⚠️ Répondre **200 + corps vide** (un 204 ne déclenche pas de swap).
 
 ### P7 — Composant composite (parent + items déclaratifs)
 Quand le parent doit connaître ses enfants avant de rendre (onglets, colonnes, accordéon…) :
@@ -134,7 +137,15 @@ Quand le parent doit connaître ses enfants avant de rendre (onglets, colonnes, 
 2. L'item est une classe `ComponentBase` pure avec `[CascadingParameter] internal Parent` ; il lève une exception si utilisé hors de son parent.
 3. Dédoublonner à l'enregistrement (clé).
 
-Utilisé par : `HxTabs`/`HxTab`. Même pattern que `QuickGrid`.
+Utilisé par : `HxTabs`/`HxTab`, `HxTable`/`HxColumn` (générique : `@typeparam TItem` + `@attribute [CascadingTypeParameter(nameof(TItem))]` pour que les colonnes infèrent le type sans le répéter). Même pattern que `QuickGrid`.
+
+### P8 — Mises à jour multi-zones (`hx-swap-oob`)
+Une réponse de fragment peut mettre à jour d'autres zones que la cible principale : tout élément **au premier niveau de la réponse** portant `hx-swap-oob` est extrait avant le swap principal et swappé ailleurs. Deux formes :
+- `hx-swap-oob="outerHTML"` : l'élément remplace celui du DOM qui porte le même `id` (ex. la liste re-rendue dans la réponse de suppression).
+- `hx-swap-oob="afterbegin:#selecteur"` (positionnel) : ⚠️ htmx insère alors le **contenu** de l'élément oob, pas l'élément lui-même → prévoir un élément porteur autour du markup à insérer (cf. `HxToast`).
+
+Combiné à P6, c'est la recette « action confirmée » : le POST de confirmation renvoie un corps principal vide (la modale se ferme) + la liste re-rendue en oob + un `HxToast` en oob.
+Utilisé par : `HxToast`/`HxToastRoot`, démo de suppression (`HxConfirm`).
 
 ## 7. Checklist : ajouter un nouveau composant
 
@@ -164,13 +175,17 @@ Utilisé par : `HxTabs`/`HxTab`. Même pattern que `QuickGrid`.
 - **`[SupplyParameterFromQuery]`** ne fonctionne pas avec `RazorComponentResult` — passer les paramètres via la fabrique du `MapHtmx*`.
 - **Assets RCL** : le CSS de la librairie est servi sous `_content/HtmxBlazor.Components/…` et doit être référencé via `@Assets[...]` (fingerprinting de `MapStaticAssets`).
 - **Cache navigateur vs fragments** : si une même URL sert page complète et fragment, varier la réponse sur `HX-Request` (header `Vary`) — non nécessaire tant que les fragments ont des routes dédiées `/fragments/…`.
+- **`revealed` vs `intersect`** : `revealed` n'écoute que le scroll de la fenêtre ; dans un conteneur `overflow: auto`, utiliser `intersect` (IntersectionObserver, qui tient compte du clipping par les ancêtres scrollables).
+- **`hx-swap-oob` positionnel** (`afterbegin:…`, `beforeend:…`) : htmx insère le **contenu** de l'élément oob, pas l'élément — envelopper le markup dans un porteur (cf. `HxToast`). Seuls `true`/`outerHTML` swappent l'élément lui-même (apparié par `id`). Et les éléments oob doivent être **au premier niveau** de la réponse.
 
 ## 9. Pistes de composants futurs
 
+(`HxInfiniteScroll`, `HxToast`, `HxConfirm`, `HxDropdown` et `HxTable`, anciennement listés ici, sont implémentés — voir les patterns §6 qu'ils illustrent.)
+
 | Composant | Pattern pressenti |
 |---|---|
-| `HxInfiniteScroll` | P3 : `revealed` sur le dernier élément de liste, swap `afterend`. |
-| `HxToast` | P5 + swaps *out-of-band* (`hx-swap-oob`) vers un conteneur global de notifications. |
-| `HxConfirm` | P6 : variante de modale rendant un formulaire de confirmation qui POSTe l'action réelle. |
-| `HxDropdown` | P6 simplifié : ouverture par GET, fermeture par swap vide. |
-| `HxTable` (tri/pagination) | P1 : l'état tri+page dans l'URL, la table entière se re-rend. |
+| `HxAccordion` | P7 + P1 : panneaux déclaratifs, clé du panneau ouvert dans l'URL. |
+| `HxAutocomplete` | P2 (input debounced → panneau de suggestions) + P6 pour la fermeture. |
+| `HxWizard` | P1 : formulaire multi-étapes, l'étape courante dans l'URL, POST à chaque étape. |
+| `HxDeleteRow` | P6 : bouton DELETE sur une ligne, réponse vide swappée sur `closest tr`. |
+| `HxNotificationStream` | Hors patterns actuels : nécessite l'extension htmx SSE (un JS tiers de plus — à signaler explicitement, cf. checklist §7.1). |

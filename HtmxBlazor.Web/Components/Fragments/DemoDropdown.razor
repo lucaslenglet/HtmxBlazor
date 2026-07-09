@@ -1,0 +1,12 @@
+<HxDropdownPanel>
+    <HxDropdownItem Get="@PickUrl("Apple")" Target="#pick-result">🍎 Apple</HxDropdownItem>
+    <HxDropdownItem Get="@PickUrl("Banana")" Target="#pick-result">🍌 Banana</HxDropdownItem>
+    <HxDropdownItem Get="@PickUrl("Cherry")" Target="#pick-result">🍒 Cherry</HxDropdownItem>
+</HxDropdownPanel>
+
+@code {
+    public const string Route = "/fragments/demo-dropdown";
+
+    private static string PickUrl(string choice)
+        => $"{PickFragment.Route}?choice={Uri.EscapeDataString(choice)}";
+}

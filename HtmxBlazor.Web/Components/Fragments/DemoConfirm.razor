@@ -1,0 +1,11 @@
+<HxConfirm Title="Delete item"
+           ConfirmText="Delete"
+           Action="@($"{ItemDeletedFragment.Route}?item={Uri.EscapeDataString(Item)}")">
+    <p>Delete <strong>@Item</strong>? This cannot be undone.</p>
+</HxConfirm>
+
+@code {
+    public const string Route = "/fragments/demo-confirm";
+
+    [Parameter, EditorRequired] public string Item { get; set; } = "";
+}
