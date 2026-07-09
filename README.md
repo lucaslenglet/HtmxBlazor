@@ -2,6 +2,8 @@
 
 Experiments combining **Blazor static SSR** (HTML rendering engine) with **[htmx](https://htmx.org)** (front-end interactivity engine) — with as little JavaScript as possible.
 
+> 📖 **[docs/SPECS.md](docs/SPECS.md)** — spécifications techniques de la librairie : architecture, contrats des classes de base, patterns établis, et la checklist à suivre pour ajouter de nouveaux composants.
+
 ## How it works
 
 Blazor is used purely as a server-side HTML templating engine (static SSR: no circuits, no WebAssembly, no SignalR). htmx, declared through plain HTML attributes, drives all the interactivity:
@@ -72,6 +74,8 @@ app.MapHtmxPost<CounterFragment>("/fragments/counter",
 Unsafe verbs (`MapHtmxPost/Put/Patch/Delete`) validate the antiforgery token by default (form field or request header — matching what `HxForm` and `HxButton` send). The validation filter reads the form first, so `ctx.Request.Form` is safe to use in the parameter factory.
 
 Alternative, also supported: make the fragment component itself routable (`@page "..."` + `@layout HxFragmentLayout`) and let `MapRazorComponents` serve it — handy when you want `[SupplyParameterFromQuery]` binding.
+
+See [docs/SPECS.md](docs/SPECS.md) for the full picture: request pipeline, base class contracts, antiforgery flows, the established interaction patterns (self-swap, deferred placeholder, server-triggered events, composite components, ...), known pitfalls, and the step-by-step checklist for adding a new component.
 
 ## Host requirements
 
