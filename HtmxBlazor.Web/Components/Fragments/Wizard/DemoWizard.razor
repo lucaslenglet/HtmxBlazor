@@ -1,0 +1,57 @@
+@namespace HtmxBlazor.Web.Components.Fragments
+@inherits HxComponentBase
+
+@if (Step > StepCount)
+{
+    <div id="demo-wizard" class="demo-wizard-done">
+        <p>✓ Registered <strong>@Get("name")</strong> (@Get("email")) on the <strong>@Get("plan")</strong> plan.</p>
+        <HxButton Post="@($"{Route}?step=1")" Target="#demo-wizard" Swap="HxSwap.OuterHtml">Start again</HxButton>
+    </div>
+}
+else
+{
+    <HxWizard Id="demo-wizard" Url="@Route" Step="@Step" Values="@Values">
+        <HxWizardStep Title="Identity" Fields="@(new[] { "name" })">
+            <label>
+                Name
+                <input type="text" name="name" value="@Get("name")" required />
+            </label>
+        </HxWizardStep>
+        <HxWizardStep Title="Contact" Fields="@(new[] { "email", "plan" })">
+            <label>
+                Email
+                <input type="email" name="email" value="@Get("email")" required />
+            </label>
+            <label>
+                Plan
+                <select name="plan">
+                    <option selected="@(Get("plan") == "Free")">Free</option>
+                    <option selected="@(Get("plan") == "Pro")">Pro</option>
+                </select>
+            </label>
+        </HxWizardStep>
+        <HxWizardStep Title="Review">
+            <dl class="demo-wizard-review">
+                <dt>Name</dt>
+                <dd>@Get("name")</dd>
+                <dt>Email</dt>
+                <dd>@Get("email")</dd>
+                <dt>Plan</dt>
+                <dd>@Get("plan")</dd>
+            </dl>
+        </HxWizardStep>
+    </HxWizard>
+}
+
+@code {
+    public const string Route = "/fragments/demo-wizard";
+
+    private const int StepCount = 3;
+
+    [Parameter] public int Step { get; set; } = 1;
+
+    [Parameter] public IReadOnlyDictionary<string, string>? Values { get; set; }
+
+    private string? Get(string key)
+        => Values is not null && Values.TryGetValue(key, out var value) && value.Length > 0 ? value : null;
+}

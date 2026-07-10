@@ -8,8 +8,8 @@ Librairie de composants HTML interactifs : **Blazor SSR statique** pour le rendu
 
 ## Structure
 
-- `HtmxBlazor.Components/` — la librairie (RCL) : primitives dans `Htmx/`, composants dans `Components/`, mapping d'endpoints dans `Endpoints/`, CSS par défaut dans `wwwroot/htmx-blazor.css`.
-- `HtmxBlazor.Web/` — appli de démo ; chaque composant a sa section dans `Components/Pages/Demo.razor`, son fragment dans `Components/Fragments/` et son mapping dans `Endpoints/FragmentEndpoints.cs`.
+- `HtmxBlazor.Components/` — la librairie (RCL) : primitives dans `Htmx/`, composants dans `Components/<Famille>/` (un sous-dossier par famille : `Primitives/`, `Modal/`, `Table/`…), mapping d'endpoints dans `Endpoints/`, CSS par défaut dans `wwwroot/htmx-blazor.css`.
+- `HtmxBlazor.Web/` — appli de démo ; chaque composant a sa section dans `Components/Pages/Demo.razor`, son fragment dans `Components/Fragments/<Famille>/` (sous-dossiers en miroir de la librairie, namespace unique `HtmxBlazor.Web.Components.Fragments` via `@namespace`) et son mapping dans `Endpoints/FragmentEndpoints.cs`.
 - `HtmxBlazor.AppHost` / `HtmxBlazor.ServiceDefaults` — orchestration .NET Aspire.
 
 ## Rappels critiques

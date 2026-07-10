@@ -47,11 +47,19 @@ HtmxBlazor.Components/
 │   ├── HxSwap.cs                    # enum hx-swap + ToAttributeValue()
 │   ├── HxTrigger.cs                 # builder fluide hx-trigger
 │   └── HxTiming.cs                  # TimeSpan → "500ms" / "2s"
-├── Components/
-│   ├── HxComponentBase.cs           # base : HttpContext, IsHtmxRequest, TriggerClientEvent
-│   ├── HxInteractiveComponentBase.cs# base : paramètres hx-* typés + AllAttributes()
-│   ├── HxDefer.cs                   # infra : rendu différé (pattern QuickGrid)
-│   └── Hx*.razor / Hx*.cs           # les composants publics
+├── Components/                      # un sous-dossier par famille de composants
+│   ├── Infrastructure/              # HxComponentBase, HxInteractiveComponentBase, HxDefer, HxFragmentLayout
+│   ├── Primitives/                  # HxElement, HxButton, HxForm, HxLink, HxIndicator
+│   ├── Loading/                     # HxLazy, HxPoll, HxInfiniteScroll
+│   ├── Streaming/                   # HxNotificationStream
+│   ├── Tabs/                        # HxTabs, HxTab
+│   ├── Accordion/                   # HxAccordion, HxAccordionItem
+│   ├── Modal/                       # HxModal, HxModalRoot, HxModalClose, HxConfirm
+│   ├── Toast/                       # HxToast, HxToastRoot, HxToastVariant
+│   ├── Dropdown/                    # HxDropdown, HxDropdownPanel, HxDropdownItem
+│   ├── Autocomplete/                # HxAutocomplete, HxAutocompletePanel, HxAutocompleteOption
+│   ├── Table/                       # HxTable, HxColumn, HxDeleteRow
+│   └── Wizard/                      # HxWizard, HxWizardStep
 ├── Endpoints/
 │   ├── HtmxEndpointRouteBuilderExtensions.cs  # MapHtmxGet/Post/Put/Patch/Delete<T>
 │   ├── HxModalEndpointExtensions.cs           # MapHxModalClose()
@@ -155,15 +163,15 @@ Utilisé par : `HxNotificationStream`.
 ## 7. Checklist : ajouter un nouveau composant
 
 1. **Choisir le pattern** (§6) et vérifier qu'il ne requiert aucun JS. Si un JS minimal est inévitable, le signaler explicitement dans la doc du composant et proposer l'alternative sans JS.
-2. **Fichier** dans `HtmxBlazor.Components/Components/`, en `.razor` sauf besoin de tag dynamique ou de logique de rendu (→ `.cs` + `RenderTreeBuilder`).
-3. **Directives** : `@namespace HtmxBlazor.Components` en première ligne (le dossier ne fait pas foi) et `@inherits HxComponentBase` ou `HxInteractiveComponentBase`.
+2. **Fichier** dans `HtmxBlazor.Components/Components/<Famille>/` (dossier existant ou nouveau — un dossier par famille de composants), en `.razor` sauf besoin de tag dynamique ou de logique de rendu (→ `.cs` + `RenderTreeBuilder`).
+3. **Directives** : `@namespace HtmxBlazor.Components` en première ligne (le dossier ne fait pas foi — tous les composants partagent ce namespace quel que soit leur sous-dossier) et `@inherits HxComponentBase` ou `HxInteractiveComponentBase`.
 4. **Visibilité `public`** — le compilateur Razor ne résout pas les composants `internal` en balise.
 5. **Nommage** : préfixe `Hx`. Paramètres : `Url` (endpoint fragment), `Id` quand un ciblage est nécessaire, constantes `public const` pour les valeurs par défaut partagées (`DefaultCloseRoute`, `DefaultTarget`…).
 6. **Paramètres** : typés, `[EditorRequired]` quand indispensable, XML doc sur chaque paramètre. Splatter `AllAttributes()` (interactif) ou `AdditionalAttributes` (statique) sur la racine.
 7. **CSS** : classes préfixées `hx-` dans `wwwroot/htmx-blazor.css`, minimalistes et surchargeables. Pas de style inline.
 8. **Accessibilité** : rôles ARIA (`role="tablist"`, `aria-selected`, `aria-modal`…) dès la conception.
 9. **Endpoint** : si le composant nécessite un endpoint générique, l'exposer en extension `MapHxXxx()` dans `Endpoints/`.
-10. **Démo** : fragment `Demo*.razor` dans `HtmxBlazor.Web/Components/Fragments/` (avec `public const string Route`), mapping dans `FragmentEndpoints.cs`, section dans `Pages/Demo.razor`.
+10. **Démo** : fragment `Demo*.razor` dans `HtmxBlazor.Web/Components/Fragments/<Famille>/` (sous-dossiers en miroir de ceux de la librairie), avec `public const string Route` et `@namespace HtmxBlazor.Web.Components.Fragments` en première ligne (namespace unique pour tous les fragments, quel que soit le sous-dossier) ; mapping dans `FragmentEndpoints.cs`, section dans `Pages/Demo.razor`.
 11. **Vérifier** :
     - `dotnet build` sans erreur ;
     - curl des fragments (`-H "HX-Request: true"`) : fragment nu, pas de document complet, headers `HX-*` attendus ;

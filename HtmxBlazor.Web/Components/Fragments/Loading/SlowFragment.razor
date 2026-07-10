@@ -1,0 +1,18 @@
+@namespace HtmxBlazor.Web.Components.Fragments
+<p>
+    ✅ Heavy content loaded at <strong>@_loadedAt.ToString("HH:mm:ss")</strong>
+    (the page itself did not wait for it).
+</p>
+
+@code {
+    public const string Route = "/fragments/slow";
+
+    private DateTime _loadedAt;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulates a slow data source.
+        await Task.Delay(TimeSpan.FromSeconds(1));
+        _loadedAt = DateTime.Now;
+    }
+}

@@ -1,0 +1,69 @@
+@namespace HtmxBlazor.Web.Components.Fragments
+@inherits HxComponentBase
+
+<div id="demo-rows" class="demo-rows" @attributes="AdditionalAttributes">
+    @{ var people = Snapshot(); }
+    <table>
+        <thead>
+            <tr>
+                <th>Pioneer</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (people.Length == 0)
+            {
+                <tr>
+                    <td colspan="2"><em>Everyone is gone — reset to start over.</em></td>
+                </tr>
+            }
+            @foreach (var person in people)
+            {
+                <tr>
+                    <td>@person</td>
+                    <td><HxDeleteRow Url="@($"{RowDeletedFragment.Route}?name={Uri.EscapeDataString(person)}")">Remove</HxDeleteRow></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <HxButton Post="@ResetRoute" Target="#demo-rows" Swap="HxSwap.OuterHtml">Reset</HxButton>
+</div>
+
+@code {
+    public const string ResetRoute = "/fragments/demo-rows/reset";
+
+    private static readonly string[] Seed = ["Ada Lovelace", "Alan Turing", "Grace Hopper", "Margaret Hamilton"];
+
+    private static readonly List<string> People = [.. Seed];
+
+    /// <summary>When true (the reset endpoint), restores the initial rows before rendering.</summary>
+    [Parameter] public bool Reset { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (Reset && IsHtmxRequest)
+        {
+            lock (People)
+            {
+                People.Clear();
+                People.AddRange(Seed);
+            }
+        }
+    }
+
+    internal static void Remove(string person)
+    {
+        lock (People)
+        {
+            People.Remove(person);
+        }
+    }
+
+    private static string[] Snapshot()
+    {
+        lock (People)
+        {
+            return [.. People];
+        }
+    }
+}

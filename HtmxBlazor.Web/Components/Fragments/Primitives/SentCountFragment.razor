@@ -1,0 +1,9 @@
+@namespace HtmxBlazor.Web.Components.Fragments
+@MessagesSent message(s) sent
+
+@code {
+    public const string Route = "/fragments/sent-count";
+
+    // Demo-only in-memory state, shared across requests.
+    public static int MessagesSent;
+}

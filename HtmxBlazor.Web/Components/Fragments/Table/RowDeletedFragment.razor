@@ -1,0 +1,20 @@
+@namespace HtmxBlazor.Web.Components.Fragments
+@inherits HxComponentBase
+
+@* Main body intentionally empty: the outerHTML swap over `closest tr` removes the
+   row. The toast below is out-of-band, so it never lands in the table. *@
+<HxToast Variant="HxToastVariant.Success">Removed “@Name”.</HxToast>
+
+@code {
+    public const string Route = "/fragments/demo-rows/delete";
+
+    [Parameter] public string? Name { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (IsHtmxRequest && !string.IsNullOrEmpty(Name))
+        {
+            DemoRows.Remove(Name);
+        }
+    }
+}

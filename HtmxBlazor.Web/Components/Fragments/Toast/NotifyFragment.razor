@@ -1,0 +1,11 @@
+@namespace HtmxBlazor.Web.Components.Fragments
+<span>Done at @DateTime.Now.ToString("HH:mm:ss") — check the top-right corner.</span>
+<HxToast Variant="@Variant">
+    @(Variant == HxToastVariant.Error ? "Something went wrong (not really)." : "Preferences saved.")
+</HxToast>
+
+@code {
+    public const string Route = "/fragments/notify";
+
+    [Parameter] public HxToastVariant Variant { get; set; } = HxToastVariant.Success;
+}
