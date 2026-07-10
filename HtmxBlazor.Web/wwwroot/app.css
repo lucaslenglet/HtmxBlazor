@@ -94,3 +94,57 @@ h1:focus {
         padding: 0.35rem 0;
         border-bottom: 1px dashed #eee;
     }
+.demo-picked {
+    margin: 0.5rem 0 0;
+}
+
+.hx-wizard-body label {
+    display: block;
+    margin-bottom: 0.6rem;
+}
+
+.demo-wizard-review {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.25rem 1rem;
+    margin: 0;
+}
+
+    .demo-wizard-review dd {
+        margin: 0;
+    }
+
+.demo-wizard-done p {
+    margin-top: 0;
+}
+
+.demo-rows table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 0.6rem;
+}
+
+.demo-rows td,
+.demo-rows th {
+    padding: 0.35rem 0.5rem;
+    border-bottom: 1px solid #e4e4e4;
+    text-align: left;
+}
+
+.demo-notifications {
+    max-height: 10rem;
+    overflow-y: auto;
+    border: 1px solid #e4e4e4;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+}
+
+.demo-notification {
+    margin: 0;
+    padding: 0.2rem 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.demo-notification-muted {
+    color: #777;
+}

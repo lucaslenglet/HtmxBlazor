@@ -74,6 +74,40 @@ public static class FragmentEndpoints
             Page = int.TryParse(context.Request.Query["page"], out var tablePage) ? tablePage : 1,
         });
 
+        app.MapHtmxGet<DemoAccordion>(DemoAccordion.Route, context => new
+        {
+            Open = context.Request.Query["open"].ToString() is { Length: > 0 } open ? open : null,
+        });
+
+        app.MapHtmxGet<SuggestFragment>(SuggestFragment.Route, context => new
+        {
+            Query = context.Request.Query["q"].ToString(),
+        });
+
+        app.MapHtmxGet<DemoAutocomplete>(DemoAutocomplete.Route, context => new
+        {
+            Value = context.Request.Query["value"].ToString(),
+        });
+
+        // The antiforgery filter has already read the form (see GreetingFragment above).
+        app.MapHtmxPost<DemoWizard>(DemoWizard.Route, context => new
+        {
+            Step = int.TryParse(context.Request.Query["step"], out var step) ? step : 1,
+            Values = (IReadOnlyDictionary<string, string>)context.Request.Form
+                .Where(field => !field.Key.StartsWith("__", StringComparison.Ordinal))
+                .ToDictionary(field => field.Key, field => field.Value.LastOrDefault() ?? string.Empty),
+        });
+
+        app.MapHtmxDelete<RowDeletedFragment>(RowDeletedFragment.Route, context => new
+        {
+            Name = context.Request.Query["name"].ToString(),
+        });
+
+        app.MapHtmxPost<DemoRows>(DemoRows.ResetRoute, _ => new
+        {
+            Reset = true,
+        });
+
         app.MapHxModalClose();
 
         app.MapHxDismiss();

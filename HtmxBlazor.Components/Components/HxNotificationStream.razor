@@ -1,0 +1,36 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<div class="hx-notification-stream"
+     hx-ext="sse"
+     sse-connect="@Url"
+     sse-swap="@EventName"
+     hx-swap="@Swap.ToAttributeValue()"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>
+    /// Live region fed by Server-Sent Events: htmx opens an <c>EventSource</c> on
+    /// <see cref="Url"/> and swaps the HTML payload of each <see cref="EventName"/>
+    /// event into this element (<see cref="Swap"/>, prepended by default).
+    /// The server endpoint responds with <c>Content-Type: text/event-stream</c> and
+    /// writes one HTML fragment per <c>data:</c> line; the connection closes when the
+    /// client leaves the page.
+    /// ⚠️ This is the one component that needs a script besides <c>htmx.min.js</c>:
+    /// the official SSE extension (<c>htmx-ext-sse</c>, see
+    /// https://htmx.org/extensions/sse/) must be loaded in the page. Still zero
+    /// hand-written JavaScript.
+    /// </summary>
+    [Parameter, EditorRequired] public string Url { get; set; } = default!;
+
+    /// <summary>Name of the SSE event carrying the fragments. Defaults to <c>message</c> (plain <c>data:</c> lines).</summary>
+    [Parameter] public string EventName { get; set; } = "message";
+
+    /// <summary>How each fragment is swapped into the element. Defaults to <see cref="HxSwap.AfterBegin"/> (prepend).</summary>
+    [Parameter] public HxSwap Swap { get; set; } = HxSwap.AfterBegin;
+
+    /// <summary>Initial content, rendered before the first event arrives.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

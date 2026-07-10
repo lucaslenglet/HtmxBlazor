@@ -1,0 +1,111 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<CascadingValue Value="this" IsFixed="true">
+    @ChildContent
+    <HxDefer>
+        <div id="@Id" class="hx-wizard" @attributes="AdditionalAttributes">
+            <ol class="hx-wizard-progress">
+                @for (var i = 0; i < _steps.Count; i++)
+                {
+                    var position = i + 1;
+                    <li class="@MarkerClass(position)" aria-current="@(position == CurrentPosition ? "step" : null)">
+                        @_steps[i].Title
+                    </li>
+                }
+            </ol>
+            <HxForm Post="@StepUrl(CurrentPosition + 1)" Target="@Self" Swap="HxSwap.OuterHtml" class="hx-wizard-form">
+                @foreach (var (name, value) in CarriedValues)
+                {
+                    <input type="hidden" name="@name" value="@value" />
+                }
+                <div class="hx-wizard-body">@CurrentStep?.ChildContent</div>
+                <div class="hx-wizard-actions">
+                    @if (CurrentPosition > 1)
+                    {
+                        <button type="button"
+                                class="hx-wizard-back"
+                                hx-post="@StepUrl(CurrentPosition - 1)"
+                                hx-include="closest form"
+                                hx-target="@Self"
+                                hx-swap="@HxSwap.OuterHtml.ToAttributeValue()">@BackText</button>
+                    }
+                    <button type="submit" class="hx-wizard-next">
+                        @(CurrentPosition >= _steps.Count ? FinishText : NextText)
+                    </button>
+                </div>
+            </HxForm>
+        </div>
+    </HxDefer>
+</CascadingValue>
+
+@code {
+    private readonly List<HxWizardStep> _steps = [];
+
+    /// <summary>
+    /// Multi-step form: each action POSTs every field to <see cref="Url"/> with the
+    /// requested step in the query string, and the returned fragment — the same
+    /// component re-rendered at that step — replaces the whole wizard (<c>outerHTML</c>
+    /// self-swap). Values gathered in previous steps are carried across steps as hidden
+    /// fields (declare the fields each step owns with
+    /// <see cref="HxWizardStep.Fields"/> so its inputs are not duplicated), so the
+    /// endpoint always receives the full state: read the form into
+    /// <see cref="Values"/> and the step from the query. A submit past the last step is
+    /// the finish signal — let the endpoint render the completion fragment instead of
+    /// the wizard. The Back button posts too (with the antiforgery hidden field, via
+    /// <c>hx-include</c>), so nothing typed is lost, and skips browser validation.
+    /// </summary>
+    [Parameter, EditorRequired] public string Id { get; set; } = default!;
+
+    /// <summary>Fragment endpoint URL (POST) re-rendering the component hosting this wizard.</summary>
+    [Parameter, EditorRequired] public string Url { get; set; } = default!;
+
+    /// <summary>Current step, 1-based. Defaults to 1. Clamped to the declared steps.</summary>
+    [Parameter] public int Step { get; set; } = 1;
+
+    /// <summary>Field values gathered so far, re-rendered as hidden fields to travel with every POST.</summary>
+    [Parameter] public IReadOnlyDictionary<string, string>? Values { get; set; }
+
+    /// <summary>Name of the query parameter carrying the requested step. Defaults to <c>step</c>.</summary>
+    [Parameter] public string StepParam { get; set; } = "step";
+
+    /// <summary>Label of the submit button on intermediate steps. Defaults to <c>Next</c>.</summary>
+    [Parameter] public string NextText { get; set; } = "Next";
+
+    /// <summary>Label of the back button. Defaults to <c>Back</c>.</summary>
+    [Parameter] public string BackText { get; set; } = "Back";
+
+    /// <summary>Label of the submit button on the last step. Defaults to <c>Finish</c>.</summary>
+    [Parameter] public string FinishText { get; set; } = "Finish";
+
+    /// <summary>The <see cref="HxWizardStep"/> declarations.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    internal void AddStep(HxWizardStep step)
+    {
+        if (!_steps.Any(s => string.Equals(s.Title, step.Title, StringComparison.Ordinal)))
+        {
+            _steps.Add(step);
+        }
+    }
+
+    private string Self => $"#{Id}";
+
+    private int CurrentPosition => Math.Clamp(Step, 1, Math.Max(_steps.Count, 1));
+
+    private HxWizardStep? CurrentStep => _steps.ElementAtOrDefault(CurrentPosition - 1);
+
+    private IEnumerable<KeyValuePair<string, string>> CarriedValues
+        => Values is null
+            ? []
+            : Values.Where(kv => !(CurrentStep?.Fields?.Contains(kv.Key, StringComparer.OrdinalIgnoreCase) ?? false));
+
+    private string MarkerClass(int position) => position < CurrentPosition
+        ? "hx-wizard-marker hx-wizard-done"
+        : position == CurrentPosition
+            ? "hx-wizard-marker hx-wizard-current"
+            : "hx-wizard-marker";
+
+    private string StepUrl(int step)
+        => $"{Url}{(Url.Contains('?') ? '&' : '?')}{StepParam}={Math.Max(step, 1)}";
+}

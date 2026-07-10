@@ -1,0 +1,70 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<div id="@Id" class="hx-autocomplete" @attributes="AdditionalAttributes">
+    <input type="search"
+           class="hx-autocomplete-input"
+           role="combobox"
+           aria-controls="@PanelId"
+           autocomplete="off"
+           name="@Name"
+           value="@Value"
+           placeholder="@Placeholder"
+           hx-get="@Url"
+           hx-trigger="@SearchTrigger"
+           hx-target="@PanelSelector"
+           hx-swap="@HxSwap.InnerHtml.ToAttributeValue()" />
+    <div id="@PanelId"
+         class="hx-autocomplete-panel"
+         hx-get="@DismissUrl"
+         hx-trigger="@CloseTrigger"
+         hx-swap="@HxSwap.InnerHtml.ToAttributeValue()"></div>
+</div>
+
+@code {
+    /// <summary>
+    /// Name of the client event that closes every open suggestion panel. Fragment
+    /// endpoints can raise it with <c>TriggerClientEvent(HxAutocomplete.EventClose)</c>.
+    /// </summary>
+    public const string EventClose = "hx-autocomplete-close";
+
+    private static readonly string CloseTrigger = HxTrigger.On(EventClose).From("body");
+
+    /// <summary>
+    /// A text input whose keystrokes (debounced) GET <see cref="Url"/> and render the
+    /// returned suggestions — an <see cref="HxAutocompletePanel"/> — into the panel
+    /// below. Picking a suggestion is a request owned by the option (typically a GET
+    /// re-rendering the fragment hosting this component with <see cref="Value"/> set,
+    /// an <c>outerHTML</c> self-swap that also empties the panel). For an empty query,
+    /// return an empty body: an empty <c>innerHTML</c> swap clears the panel. The panel
+    /// also clears itself on the backdrop click rendered by
+    /// <see cref="HxAutocompletePanel"/> or when an <see cref="EventClose"/> event is
+    /// raised through <c>HX-Trigger</c>. Map the empty endpoint once with
+    /// <c>app.MapHxDismiss()</c>.
+    /// </summary>
+    [Parameter, EditorRequired] public string Id { get; set; } = default!;
+
+    /// <summary>Fragment endpoint URL serving the suggestions.</summary>
+    [Parameter, EditorRequired] public string Url { get; set; } = default!;
+
+    /// <summary>Name of the input, i.e. the query parameter carrying the typed text. Defaults to <c>q</c>.</summary>
+    [Parameter] public string Name { get; set; } = "q";
+
+    /// <summary>Current value of the input (e.g. the picked suggestion after a self-swap).</summary>
+    [Parameter] public string? Value { get; set; }
+
+    /// <summary>Placeholder of the input.</summary>
+    [Parameter] public string? Placeholder { get; set; }
+
+    /// <summary>Debounce applied to keystrokes before requesting suggestions. Defaults to 300 ms.</summary>
+    [Parameter] public TimeSpan Delay { get; set; } = TimeSpan.FromMilliseconds(300);
+
+    /// <summary>URL of the empty endpoint used to close the panel.</summary>
+    [Parameter] public string DismissUrl { get; set; } = HxDismissEndpointExtensions.DefaultDismissRoute;
+
+    private string SearchTrigger => HxTrigger.On("input").Changed().Delay(Delay).ToString();
+
+    private string PanelId => $"{Id}-panel";
+
+    private string PanelSelector => $"#{PanelId}";
+}

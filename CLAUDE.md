@@ -1,10 +1,10 @@
 # HtmxBlazor
 
-Librairie de composants HTML interactifs : **Blazor SSR statique** pour le rendu, **htmx** pour l'interactivité, **zéro JavaScript écrit à la main** (pas de `hx-on`, pas de `<script>` inline — le seul JS est `htmx.min.js`).
+Librairie de composants HTML interactifs : **Blazor SSR statique** pour le rendu, **htmx** pour l'interactivité, **zéro JavaScript écrit à la main** (pas de `hx-on`, pas de `<script>` inline — les seuls JS sont `htmx.min.js` et l'extension officielle `sse`, requise uniquement par `HxNotificationStream`).
 
 ## Référence obligatoire
 
-**Avant d'ajouter ou modifier un composant, lire [`docs/SPECS.md`](docs/SPECS.md)** : architecture, contrats des classes de base, les 7 patterns d'interaction établis, la checklist en 12 points pour un nouveau composant, et les pièges connus. Tout nouveau composant doit suivre un pattern existant (ou en documenter un nouveau au §6 des specs).
+**Avant d'ajouter ou modifier un composant, lire [`docs/SPECS.md`](docs/SPECS.md)** : architecture, contrats des classes de base, les 9 patterns d'interaction établis, la checklist en 12 points pour un nouveau composant, et les pièges connus. Tout nouveau composant doit suivre un pattern existant (ou en documenter un nouveau au §6 des specs).
 
 ## Structure
 

@@ -31,6 +31,8 @@ app.MapTicks();
 
 app.MapFragments();
 
+app.MapNotificationStream();
+
 app.MapRazorComponents<App>();
 
 app.Run();

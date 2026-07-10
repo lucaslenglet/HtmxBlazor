@@ -1,0 +1,19 @@
+@namespace HtmxBlazor.Components
+@inherits HxInteractiveComponentBase
+
+<button type="button" role="option" @attributes="AllAttributes()" class="@CssClass">@ChildContent</button>
+
+@code {
+    /// <summary>
+    /// A suggestion inside an <see cref="HxAutocompletePanel"/>. Inherits every htmx
+    /// parameter (<c>Get</c>, <c>Target</c>, ...) so the option performs its own request —
+    /// typically a GET re-rendering the fragment hosting the <see cref="HxAutocomplete"/>
+    /// with the picked value (<c>outerHTML</c> self-swap).
+    /// </summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private string CssClass
+        => AdditionalAttributes is not null && AdditionalAttributes.TryGetValue("class", out var userClass)
+            ? $"hx-autocomplete-option {userClass}"
+            : "hx-autocomplete-option";
+}

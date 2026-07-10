@@ -1,0 +1,72 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<CascadingValue Value="this" IsFixed="true">
+    @ChildContent
+    <HxDefer>
+        <div id="@Id" class="hx-accordion" @attributes="AdditionalAttributes">
+            @foreach (var item in _items)
+            {
+                var isOpen = ReferenceEquals(item, OpenItem);
+                <section class="@(isOpen ? "hx-accordion-item hx-accordion-open" : "hx-accordion-item")">
+                    <h3 class="hx-accordion-header">
+                        <button type="button"
+                                class="hx-accordion-toggle"
+                                aria-expanded="@(isOpen ? "true" : "false")"
+                                hx-get="@ToggleUrl(item, isOpen)"
+                                hx-target="@Self"
+                                hx-swap="@HxSwap.OuterHtml.ToAttributeValue()">
+                            @item.Title<span class="hx-accordion-icon">@(isOpen ? "▴" : "▾")</span>
+                        </button>
+                    </h3>
+                    @if (isOpen)
+                    {
+                        <div class="hx-accordion-panel" role="region">@item.ChildContent</div>
+                    }
+                </section>
+            }
+        </div>
+    </HxDefer>
+</CascadingValue>
+
+@code {
+    private readonly List<HxAccordionItem> _items = [];
+
+    /// <summary>
+    /// Server-driven accordion: clicking a header GETs <see cref="Url"/> with the panel
+    /// key as query parameter (or without it to close everything), and the returned
+    /// fragment — the same component re-rendered — replaces the whole accordion
+    /// (<c>outerHTML</c> self-swap). At most one panel is open, and only its content
+    /// is rendered and sent over the wire.
+    /// </summary>
+    [Parameter, EditorRequired] public string Id { get; set; } = default!;
+
+    /// <summary>Fragment endpoint URL re-rendering the component hosting this accordion.</summary>
+    [Parameter, EditorRequired] public string Url { get; set; } = default!;
+
+    /// <summary>Key of the open panel. <c>null</c> or unknown means every panel is closed.</summary>
+    [Parameter] public string? Open { get; set; }
+
+    /// <summary>Name of the query parameter carrying the open panel key. Defaults to <c>open</c>.</summary>
+    [Parameter] public string QueryParam { get; set; } = "open";
+
+    /// <summary>The <see cref="HxAccordionItem"/> declarations.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private HxAccordionItem? OpenItem =>
+        _items.FirstOrDefault(i => string.Equals(i.Key, Open, StringComparison.OrdinalIgnoreCase));
+
+    internal void AddItem(HxAccordionItem item)
+    {
+        if (!_items.Any(i => string.Equals(i.Key, item.Key, StringComparison.OrdinalIgnoreCase)))
+        {
+            _items.Add(item);
+        }
+    }
+
+    private string Self => $"#{Id}";
+
+    private string ToggleUrl(HxAccordionItem item, bool isOpen) => isOpen
+        ? Url
+        : $"{Url}{(Url.Contains('?') ? '&' : '?')}{QueryParam}={Uri.EscapeDataString(item.Key)}";
+}

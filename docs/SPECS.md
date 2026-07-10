@@ -5,7 +5,7 @@ Document de référence pour comprendre le fonctionnement de la librairie et **a
 ## 1. Principes
 
 1. **Blazor SSR statique = moteur de rendu HTML.** Pas de circuit SignalR, pas de WebAssembly, pas de `@rendermode`. Un composant est rendu une fois par requête, côté serveur, puis oublié.
-2. **htmx = moteur d'interactivité.** Toute l'interactivité passe par des attributs `hx-*` déclaratifs. **Aucun JavaScript écrit à la main** (ni `hx-on`, ni `<script>` inline) : le seul JS de l'application est `htmx.min.js`.
+2. **htmx = moteur d'interactivité.** Toute l'interactivité passe par des attributs `hx-*` déclaratifs. **Aucun JavaScript écrit à la main** (ni `hx-on`, ni `<script>` inline) : le seul JS de l'application est `htmx.min.js` — plus l'extension officielle `sse`, requise uniquement par `HxNotificationStream` (cf. P9).
 3. **L'état vit côté serveur ou dans les URLs.** Pas d'état caché dans le DOM, pas de classe togglée par JS. Ce que le client voit est exactement ce que le serveur a rendu en dernier.
 4. **Un composant = rendu initial + fragment.** Le même `.razor` sert au rendu de la page complète et aux réponses partielles htmx. Zéro duplication de template.
 5. **Dégradation gracieuse quand c'est possible** (ex. `HxLink` reste un `<a href>` fonctionnel sans JS).
@@ -107,11 +107,11 @@ Réutiliser ces recettes pour tout nouveau composant.
 
 ### P1 — Auto-remplacement (`outerHTML` self-swap)
 Le fragment porte un `id` (ou est ciblé par `closest`), contient lui-même les contrôles qui le re-rendent, et l'état voyage dans l'URL.
-Utilisé par : compteur (démo), `HxTabs`, `HxTable` (tri + page dans l'URL, le serveur trie/pagine et le composant ne fait que rendre). *C'est le pattern par défaut pour tout composant à état.*
+Utilisé par : compteur (démo), `HxTabs`, `HxTable` (tri + page dans l'URL, le serveur trie/pagine et le composant ne fait que rendre), `HxAccordion` (clé du panneau ouvert dans `?open=`), `HxWizard` (l'étape demandée dans l'URL, les valeurs déjà saisies re-postées à chaque action via des champs cachés — le bouton Retour POSTe aussi, avec `hx-include="closest form"` pour embarquer le jeton antiforgery et les champs sans déclencher la validation navigateur), sélection d'une suggestion `HxAutocomplete` (le fragment hôte se re-rend avec la valeur choisie). *C'est le pattern par défaut pour tout composant à état.*
 
 ### P2 — Cible séparée (`hx-target`)
 Un élément déclencheur (input, bouton) vise un conteneur distinct par sélecteur CSS.
-Utilisé par : recherche active, formulaire → `#greeting`.
+Utilisé par : recherche active, formulaire → `#greeting`, `HxAutocomplete` (input débounced → panneau de suggestions ; une requête vide doit renvoyer un corps vide pour vider le panneau).
 
 ### P3 — Placeholder différé
 La page livre un placeholder ; un trigger `load` ou `revealed once` va chercher le vrai contenu et remplace le placeholder (`outerHTML`).
@@ -124,11 +124,11 @@ Utilisé par : `HxPoll`.
 
 ### P5 — Événements serveur (`HX-Trigger`)
 Un fragment signale un fait métier via `TriggerClientEvent("mon-event", detail)`. Ailleurs, des écouteurs `Trigger="@(HxTrigger.On("mon-event").From("body"))"` se rafraîchissent en réaction. Découplage total entre émetteur et écouteurs. (L'événement est dispatché sur l'élément qui a fait la requête et **bulle** jusqu'à `body` — d'où le `from:body`.)
-Utilisé par : formulaire de la démo + badge compteur ; `HxDropdown` (le panneau écoute `hx-dropdown-close from:body` et se vide quand l'endpoint d'un item émet `HxDropdown.EventClose`).
+Utilisé par : formulaire de la démo + badge compteur ; `HxDropdown` (le panneau écoute `hx-dropdown-close from:body` et se vide quand l'endpoint d'un item émet `HxDropdown.EventClose`) ; `HxAutocomplete` (même mécanisme avec `HxAutocomplete.EventClose`).
 
 ### P6 — Conteneur global + fermeture par swap vide
 Un conteneur vide (`HxModalRoot`) reçoit des fragments à la demande. La **fermeture sans JS** : les contrôles de fermeture font un GET vers un endpoint qui renvoie une réponse vide en 200 (`MapHxModalClose`, ou `MapHxDismiss` — endpoint vide partagé), swappée en `outerHTML` sur `closest .hx-modal` → l'élément disparaît du DOM. La même réponse vide en `innerHTML` **vide** un conteneur au lieu de le supprimer.
-Utilisé par : `HxModal`, `HxConfirm` (variante : le bouton de confirmation POSTe l'action réelle en ciblant `closest .hx-modal` en `outerHTML` — une réponse au corps vide ferme la modale, et la réponse peut mettre à jour le reste de la page via P5 ou P8), `HxDropdown` (ouverture par GET dans le panneau, fermeture par swap vide via le backdrop ou l'événement P5), `HxToast` (auto-dismiss : `hx-trigger="load delay:5s"` + GET vide en `outerHTML` sur lui-même).
+Utilisé par : `HxModal`, `HxConfirm` (variante : le bouton de confirmation POSTe l'action réelle en ciblant `closest .hx-modal` en `outerHTML` — une réponse au corps vide ferme la modale, et la réponse peut mettre à jour le reste de la page via P5 ou P8), `HxDropdown` (ouverture par GET dans le panneau, fermeture par swap vide via le backdrop ou l'événement P5), `HxToast` (auto-dismiss : `hx-trigger="load delay:5s"` + GET vide en `outerHTML` sur lui-même), `HxAutocomplete` (fermeture du panneau de suggestions par backdrop ou événement P5), `HxDeleteRow` (variante : le DELETE de la ligne renvoie une réponse au corps principal vide swappée en `outerHTML` sur `closest tr` — la ligne disparaît — éventuellement accompagnée d'éléments oob, cf. P8).
 ⚠️ Répondre **200 + corps vide** (un 204 ne déclenche pas de swap).
 
 ### P7 — Composant composite (parent + items déclaratifs)
@@ -137,7 +137,7 @@ Quand le parent doit connaître ses enfants avant de rendre (onglets, colonnes, 
 2. L'item est une classe `ComponentBase` pure avec `[CascadingParameter] internal Parent` ; il lève une exception si utilisé hors de son parent.
 3. Dédoublonner à l'enregistrement (clé).
 
-Utilisé par : `HxTabs`/`HxTab`, `HxTable`/`HxColumn` (générique : `@typeparam TItem` + `@attribute [CascadingTypeParameter(nameof(TItem))]` pour que les colonnes infèrent le type sans le répéter). Même pattern que `QuickGrid`.
+Utilisé par : `HxTabs`/`HxTab`, `HxTable`/`HxColumn` (générique : `@typeparam TItem` + `@attribute [CascadingTypeParameter(nameof(TItem))]` pour que les colonnes infèrent le type sans le répéter), `HxAccordion`/`HxAccordionItem`, `HxWizard`/`HxWizardStep` (chaque étape déclare ses champs via `Fields` pour que le parent ne re-rende pas en champ caché une valeur dont l'input est visible). Même pattern que `QuickGrid`.
 
 ### P8 — Mises à jour multi-zones (`hx-swap-oob`)
 Une réponse de fragment peut mettre à jour d'autres zones que la cible principale : tout élément **au premier niveau de la réponse** portant `hx-swap-oob` est extrait avant le swap principal et swappé ailleurs. Deux formes :
@@ -145,7 +145,12 @@ Une réponse de fragment peut mettre à jour d'autres zones que la cible princip
 - `hx-swap-oob="afterbegin:#selecteur"` (positionnel) : ⚠️ htmx insère alors le **contenu** de l'élément oob, pas l'élément lui-même → prévoir un élément porteur autour du markup à insérer (cf. `HxToast`).
 
 Combiné à P6, c'est la recette « action confirmée » : le POST de confirmation renvoie un corps principal vide (la modale se ferme) + la liste re-rendue en oob + un `HxToast` en oob.
-Utilisé par : `HxToast`/`HxToastRoot`, démo de suppression (`HxConfirm`).
+Utilisé par : `HxToast`/`HxToastRoot`, démo de suppression (`HxConfirm`), démo `HxDeleteRow` (corps vide qui supprime la ligne + toast oob dans la même réponse).
+
+### P9 — Flux serveur (SSE)
+Pour pousser du contenu du serveur vers la page sans polling : l'extension htmx officielle **`sse`** ouvre un `EventSource` (`hx-ext="sse"` + `sse-connect="url"`) et swappe la charge utile HTML de chaque événement dans l'élément portant `sse-swap="nom-d-événement"`, selon son `hx-swap` (`afterbegin` pour un fil de notifications). L'endpoint répond en `Content-Type: text/event-stream`, écrit un fragment HTML par ligne `data:` (+ ligne vide), flushe après chaque événement et s'arrête sur `RequestAborted`.
+⚠️ **C'est la seule entorse au « un seul JS »** : l'extension `htmx-ext-sse` est un script tiers de plus à charger (toujours zéro JS écrit à la main) — à signaler dans la doc de tout composant qui l'exige (checklist §7.1).
+Utilisé par : `HxNotificationStream`.
 
 ## 7. Checklist : ajouter un nouveau composant
 
@@ -177,15 +182,17 @@ Utilisé par : `HxToast`/`HxToastRoot`, démo de suppression (`HxConfirm`).
 - **Cache navigateur vs fragments** : si une même URL sert page complète et fragment, varier la réponse sur `HX-Request` (header `Vary`) — non nécessaire tant que les fragments ont des routes dédiées `/fragments/…`.
 - **`revealed` vs `intersect`** : `revealed` n'écoute que le scroll de la fenêtre ; dans un conteneur `overflow: auto`, utiliser `intersect` (IntersectionObserver, qui tient compte du clipping par les ancêtres scrollables).
 - **`hx-swap-oob` positionnel** (`afterbegin:…`, `beforeend:…`) : htmx insère le **contenu** de l'élément oob, pas l'élément — envelopper le markup dans un porteur (cf. `HxToast`). Seuls `true`/`outerHTML` swappent l'élément lui-même (apparié par `id`). Et les éléments oob doivent être **au premier niveau** de la réponse.
+- **SSE et tests navigateur** : une page qui contient un `HxNotificationStream` garde une connexion ouverte en permanence → tout `waitUntil: "networkidle"` (Playwright) ne se résout jamais. Attendre `load` à la place.
+- **Bouton POST hors soumission de formulaire** (ex. le Retour du `HxWizard`) : un `type="button"` avec `hx-post` n'embarque rien par défaut — ajouter `hx-include="closest form"` pour envoyer les champs **et** le champ caché antiforgery. Bonus : la validation HTML native (`required`…) ne se déclenche pas, ce qui est le comportement attendu pour un retour en arrière.
 
 ## 9. Pistes de composants futurs
 
-(`HxInfiniteScroll`, `HxToast`, `HxConfirm`, `HxDropdown` et `HxTable`, anciennement listés ici, sont implémentés — voir les patterns §6 qu'ils illustrent.)
+(Les composants anciennement listés ici — `HxInfiniteScroll`, `HxToast`, `HxConfirm`, `HxDropdown`, `HxTable`, puis `HxAccordion`, `HxAutocomplete`, `HxWizard`, `HxDeleteRow` et `HxNotificationStream` — sont implémentés ; voir les patterns §6 qu'ils illustrent.)
 
 | Composant | Pattern pressenti |
 |---|---|
-| `HxAccordion` | P7 + P1 : panneaux déclaratifs, clé du panneau ouvert dans l'URL. |
-| `HxAutocomplete` | P2 (input debounced → panneau de suggestions) + P6 pour la fermeture. |
-| `HxWizard` | P1 : formulaire multi-étapes, l'étape courante dans l'URL, POST à chaque étape. |
-| `HxDeleteRow` | P6 : bouton DELETE sur une ligne, réponse vide swappée sur `closest tr`. |
-| `HxNotificationStream` | Hors patterns actuels : nécessite l'extension htmx SSE (un JS tiers de plus — à signaler explicitement, cf. checklist §7.1). |
+| `HxEditInPlace` | P1 : un libellé cliquable GET sa version formulaire, la sauvegarde POSTe et re-rend le libellé. |
+| `HxRating` | P1 : rangée d'étoiles, chaque étoile POSTe sa note et le composant se re-rend. |
+| `HxTreeView` | P3 : nœuds repliés livrés avec la page, enfants chargés à la demande au dépliage. |
+| `HxProgress` | P4 : barre de progression pollée, le serveur arrête le polling en 286 quand c'est terminé. |
+| `HxCarousel` | P1 : l'index de la diapositive dans l'URL, précédent/suivant en self-swap. |

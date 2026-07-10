@@ -62,6 +62,11 @@ HxTrigger.Load().Or(HxTrigger.Every(TimeSpan.FromSeconds(5)))
 | `HxToast` / `HxToastRoot` | Notification prepended out-of-band (`hx-swap-oob`) into a global container; dismissed by the × or automatically through a delayed GET to the empty endpoint (`app.MapHxDismiss()`). |
 | `HxDropdown` / `HxDropdownPanel` / `HxDropdownItem` | Dropdown panel fetched as a fragment; closes on backdrop click or when an endpoint raises the `hx-dropdown-close` event through `HX-Trigger`. |
 | `HxTable` / `HxColumn` | Sortable, pageable table: the sort/page state travels in the URL and the whole table re-renders (`outerHTML` self-swap). The endpoint sorts and pages the data. |
+| `HxAccordion` / `HxAccordionItem` | Server-driven accordion: each header GETs the fragment with `?open=key` (or none to close everything), the whole accordion re-renders; only the open panel is rendered. |
+| `HxAutocomplete` / `HxAutocompletePanel` / `HxAutocompleteOption` | Debounced input fetching a suggestions fragment into a panel; picking a suggestion re-renders the host fragment with the value set (`outerHTML` self-swap). |
+| `HxWizard` / `HxWizardStep` | Multi-step form: every action POSTs the fields with the requested step in the URL, values gathered so far travel as hidden inputs; submitting past the last step is the completion signal. |
+| `HxDeleteRow` | Row-delete button: a DELETE whose empty 200 response removes `closest tr` (`outerHTML`); the response can carry out-of-band updates (toast, counter...). |
+| `HxNotificationStream` | Live region fed by Server-Sent Events. The one component needing a script besides `htmx.min.js`: the official [`sse` extension](https://htmx.org/extensions/sse/) — still zero hand-written JavaScript. |
 | `HxFragmentLayout` | Empty layout for *routable* fragment components (`@layout HxFragmentLayout`). |
 
 ### Fragment endpoints
@@ -96,6 +101,8 @@ And include htmx plus the library's default stylesheet (tabs/modal) in the layou
 
 ```html
 <script src="lib/htmx/htmx.min.js" defer></script>
+<!-- Only if you use HxNotificationStream: the official htmx SSE extension -->
+<script src="lib/htmx-ext-sse/dist/sse.min.js" defer></script>
 <link rel="stylesheet" href="@Assets["_content/HtmxBlazor.Components/htmx-blazor.css"]" />
 ```
 
@@ -127,4 +134,4 @@ dotnet run --project HtmxBlazor.Web
 # then open /demo
 ```
 
-The demo page showcases: a counter (POST + antiforgery header), active search (debounced input), lazy loading, polling, server-driven tabs, a modal, infinite scroll, out-of-band toasts, a confirm dialog updating a list out-of-band, a dropdown closed by a server-triggered event, a sortable paged table, and a form whose response triggers a client-side event through `HX-Trigger` that another element listens to.
+The demo page showcases: a counter (POST + antiforgery header), active search (debounced input), lazy loading, polling, server-driven tabs, a modal, infinite scroll, out-of-band toasts, a confirm dialog updating a list out-of-band, a dropdown closed by a server-triggered event, a sortable paged table, an accordion, an autocomplete, a multi-step wizard, row deletion with out-of-band toasts, a live SSE notification feed, and a form whose response triggers a client-side event through `HX-Trigger` that another element listens to.

@@ -107,6 +107,54 @@
 </section>
 
 <section class="demo-card">
+    <h2>Accordion</h2>
+    <p>An <code>HxAccordion</code>: each header GETs the same fragment with a different <code>?open=</code> (or none to close everything); only the open panel is rendered server-side.</p>
+    <DemoAccordion />
+</section>
+
+<section class="demo-card">
+    <h2>Autocomplete</h2>
+    <p>
+        An <code>HxAutocomplete</code>: keystrokes (debounced) GET the suggestions fragment into
+        the panel; picking a suggestion re-renders this block with the value set
+        (<code>outerHTML</code> self-swap), which also empties the panel. Clicking outside hits
+        the transparent backdrop.
+    </p>
+    <DemoAutocomplete />
+</section>
+
+<section class="demo-card">
+    <h2>Wizard</h2>
+    <p>
+        An <code>HxWizard</code>: every action POSTs the fields (values gathered so far travel as
+        hidden inputs) with the requested step in the URL; the whole wizard re-renders. Submitting
+        past the last step lets the endpoint render the completion panel instead.
+    </p>
+    <DemoWizard />
+</section>
+
+<section class="demo-card">
+    <h2>Delete row</h2>
+    <p>
+        An <code>HxDeleteRow</code> per row: a DELETE whose <em>empty</em> response is swapped over
+        <code>closest tr</code> — the row vanishes — while a toast arrives <em>out-of-band</em>.
+    </p>
+    <DemoRows />
+</section>
+
+<section class="demo-card">
+    <h2>Notification stream (SSE)</h2>
+    <p>
+        An <code>HxNotificationStream</code>: the official htmx <code>sse</code> extension (the one
+        extra script, still no hand-written JavaScript) opens an <code>EventSource</code> and
+        prepends each server-sent HTML fragment.
+    </p>
+    <HxNotificationStream Url="@NotificationStreamEndpoints.Route" class="demo-notifications">
+        <p class="demo-notification demo-notification-muted"><em>Waiting for the first notification…</em></p>
+    </HxNotificationStream>
+</section>
+
+<section class="demo-card">
     <h2>Form + server-triggered events</h2>
     <p>
         An <code>HxForm</code> POSTs the message (antiforgery hidden field included).
