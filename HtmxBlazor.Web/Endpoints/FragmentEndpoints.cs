@@ -67,6 +67,17 @@ public static class FragmentEndpoints
             Choice = context.Request.Query["choice"].ToString(),
         });
 
+        app.MapHtmxGet<DemoMultiDropdown>(DemoMultiDropdown.Route, context => new
+        {
+            Values = QueryValues(context),
+            Open = bool.TryParse(context.Request.Query["open"], out var open) && open,
+        });
+
+        app.MapHtmxGet<ToppingsPanelFragment>(ToppingsPanelFragment.Route, context => new
+        {
+            Values = QueryValues(context),
+        });
+
         app.MapHtmxGet<DemoTable>(DemoTable.Route, context => new
         {
             Sort = context.Request.Query["sort"].ToString() is { Length: > 0 } sort ? sort : null,
@@ -87,6 +98,17 @@ public static class FragmentEndpoints
         app.MapHtmxGet<DemoAutocomplete>(DemoAutocomplete.Route, context => new
         {
             Value = context.Request.Query["value"].ToString(),
+        });
+
+        app.MapHtmxGet<MultiSuggestFragment>(MultiSuggestFragment.Route, context => new
+        {
+            Query = context.Request.Query["q"].ToString(),
+            Values = QueryValues(context),
+        });
+
+        app.MapHtmxGet<DemoMultiAutocomplete>(DemoMultiAutocomplete.Route, context => new
+        {
+            Values = QueryValues(context),
         });
 
         // The antiforgery filter has already read the form (see GreetingFragment above).
@@ -114,4 +136,11 @@ public static class FragmentEndpoints
 
         return app;
     }
+
+    /// <summary>The multi-select values repeated in the query string (<c>?values=a&amp;values=b</c>).</summary>
+    private static IReadOnlyList<string> QueryValues(HttpContext context)
+        => context.Request.Query["values"]
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(value => value!)
+            .ToArray();
 }

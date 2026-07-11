@@ -1,0 +1,26 @@
+@namespace HtmxBlazor.Web.Components.Fragments
+@inherits HxComponentBase
+
+<div id="@TargetId" class="demo-autocomplete">
+    <HxAutocomplete Id="demo-countries"
+                    Url="@MultiSuggestFragment.Route"
+                    Values="@Values"
+                    RemoveUrl="@(value => UrlWithout(value))"
+                    RemoveTarget="@($"#{TargetId}")"
+                    Placeholder="Add a country…" />
+</div>
+
+@code {
+    public const string Route = "/fragments/demo-autocomplete-multi";
+
+    /// <summary>Id (and selector target) of the block re-rendered when the selection changes.</summary>
+    public const string TargetId = "demo-autocomplete-multi";
+
+    [Parameter] public IReadOnlyList<string> Values { get; set; } = [];
+
+    private string UrlWithout(string value)
+    {
+        var query = string.Join("&", Values.Where(v => v != value).Select(v => $"values={Uri.EscapeDataString(v)}"));
+        return query.Length > 0 ? $"{Route}?{query}" : Route;
+    }
+}

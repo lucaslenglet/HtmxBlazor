@@ -230,6 +230,21 @@
         background: #f0edfb;
     }
 
+.hx-dropdown-item-checkable::before {
+    content: "";
+    display: inline-block;
+    width: 1.2em;
+}
+
+.hx-dropdown-item-selected::before {
+    content: "✓";
+}
+
+.hx-dropdown-item-selected {
+    font-weight: 600;
+    color: #512bd4;
+}
+
 /* ---- HxTable ---- */
 
 .hx-table table {
@@ -396,6 +411,43 @@
     padding: 0.45rem 0.9rem;
     font-style: italic;
 }
+
+.hx-autocomplete-chips {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem;
+    list-style: none;
+    margin: 0 0.3rem 0 0;
+    padding: 0;
+    vertical-align: middle;
+}
+
+.hx-autocomplete-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    padding: 0.15rem 0.35rem 0.15rem 0.6rem;
+    background: #f0edfb;
+    border: 1px solid #d7cff2;
+    border-radius: 999px;
+    font-size: 0.9em;
+}
+
+.hx-autocomplete-chip-remove {
+    background: none;
+    border: none;
+    font: inherit;
+    line-height: 1;
+    padding: 0.1rem 0.3rem;
+    border-radius: 999px;
+    cursor: pointer;
+    color: inherit;
+}
+
+    .hx-autocomplete-chip-remove:hover {
+        background: #d7cff2;
+    }
 
 /* ---- HxWizard ---- */
 

@@ -2,6 +2,13 @@
 @inherits HxComponentBase
 
 <div id="@Id" class="hx-dropdown" @attributes="AdditionalAttributes">
+    @if (Name is not null && Values is not null)
+    {
+        foreach (var value in Values)
+        {
+            <input type="hidden" name="@Name" value="@value" />
+        }
+    }
     <HxButton Get="@Url"
               Target="@PanelSelector"
               Swap="HxSwap.InnerHtml"
@@ -11,7 +18,7 @@
          class="hx-dropdown-panel"
          hx-get="@DismissUrl"
          hx-trigger="@CloseTrigger"
-         hx-swap="@HxSwap.InnerHtml.ToAttributeValue()"></div>
+         hx-swap="@HxSwap.InnerHtml.ToAttributeValue()">@PanelContent</div>
 </div>
 
 @code {
@@ -31,6 +38,12 @@
     /// (click outside) or when an <see cref="EventClose"/> event is raised through
     /// <c>HX-Trigger</c> (item selected). Map the empty endpoint once with
     /// <c>app.MapHxDismiss()</c>.
+    /// For a <em>multi-select</em> dropdown, follow the self-swap pattern instead: each
+    /// <see cref="HxDropdownItem"/> (with <see cref="HxDropdownItem.Selected"/> set) GETs
+    /// the host fragment with the toggled selection, and the re-rendered host keeps the
+    /// panel open by passing the same <see cref="HxDropdownPanel"/> through
+    /// <see cref="PanelContent"/>. Set <see cref="Name"/>/<see cref="Values"/> so the
+    /// selection travels as hidden inputs with any enclosing form.
     /// </summary>
     [Parameter, EditorRequired] public string Id { get; set; } = default!;
 
@@ -39,6 +52,22 @@
 
     /// <summary>Label of the trigger button.</summary>
     [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Initial content of the panel, typically an <see cref="HxDropdownPanel"/>. Leave
+    /// empty (default) for a closed dropdown; render it to ship the panel already open —
+    /// e.g. when a multi-select host fragment re-renders itself after a toggle.
+    /// </summary>
+    [Parameter] public RenderFragment? PanelContent { get; set; }
+
+    /// <summary>
+    /// Name of the hidden inputs carrying <see cref="Values"/>, so the selection is
+    /// submitted with any enclosing form. No hidden input is rendered when <c>null</c>.
+    /// </summary>
+    [Parameter] public string? Name { get; set; }
+
+    /// <summary>Currently selected values of a multi-select dropdown (one hidden input each).</summary>
+    [Parameter] public IReadOnlyCollection<string>? Values { get; set; }
 
     /// <summary>URL of the empty endpoint used to close the panel.</summary>
     [Parameter] public string DismissUrl { get; set; } = HxDismissEndpointExtensions.DefaultDismissRoute;

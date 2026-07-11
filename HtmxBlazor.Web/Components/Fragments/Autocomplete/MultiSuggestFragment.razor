@@ -1,0 +1,38 @@
+@namespace HtmxBlazor.Web.Components.Fragments
+@inherits HxComponentBase
+
+@* An empty query renders nothing: the empty innerHTML swap clears the panel. *@
+@if (!string.IsNullOrWhiteSpace(Query))
+{
+    <HxAutocompletePanel>
+        @if (Matches.Count == 0)
+        {
+            <span class="hx-autocomplete-empty">No more countries match “@Query”.</span>
+        }
+        @foreach (var country in Matches)
+        {
+            <HxAutocompleteOption Get="@PickUrl(country)"
+                                  Target="@($"#{DemoMultiAutocomplete.TargetId}")"
+                                  Swap="HxSwap.OuterHtml">@country</HxAutocompleteOption>
+        }
+    </HxAutocompletePanel>
+}
+
+@code {
+    public const string Route = "/fragments/demo-suggest-multi";
+
+    [Parameter] public string? Query { get; set; }
+
+    [Parameter] public IReadOnlyList<string> Values { get; set; } = [];
+
+    private IReadOnlyList<string> Matches =>
+        SuggestFragment.Countries
+            .Where(c => c.Contains(Query!, StringComparison.OrdinalIgnoreCase) && !Values.Contains(c))
+            .ToArray();
+
+    private string PickUrl(string country)
+    {
+        var query = string.Join("&", Values.Append(country).Select(v => $"values={Uri.EscapeDataString(v)}"));
+        return $"{DemoMultiAutocomplete.Route}?{query}";
+    }
+}

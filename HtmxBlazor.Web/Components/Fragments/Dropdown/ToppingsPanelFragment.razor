@@ -1,0 +1,34 @@
+@namespace HtmxBlazor.Web.Components.Fragments
+@inherits HxComponentBase
+
+<HxDropdownPanel aria-label="Toppings">
+    @foreach (var topping in Toppings)
+    {
+        <HxDropdownItem Get="@ToggleUrl(topping)"
+                        Target="@($"#{DemoMultiDropdown.TargetId}")"
+                        Swap="HxSwap.OuterHtml"
+                        Selected="@Values.Contains(topping)">@topping</HxDropdownItem>
+    }
+</HxDropdownPanel>
+
+@code {
+    public const string Route = "/fragments/demo-dropdown-multi/panel";
+
+    private static readonly string[] Toppings =
+    [
+        "Cheese", "Ham", "Mushrooms", "Olives", "Onions", "Peppers",
+    ];
+
+    [Parameter] public IReadOnlyList<string> Values { get; set; } = [];
+
+    private string ToggleUrl(string topping)
+    {
+        var toggled = Values.Contains(topping)
+            ? Values.Where(v => v != topping)
+            : Values.Append(topping);
+        var query = string.Join("&", toggled.Select(v => $"values={Uri.EscapeDataString(v)}"));
+        return query.Length > 0
+            ? $"{DemoMultiDropdown.Route}?open=true&{query}"
+            : $"{DemoMultiDropdown.Route}?open=true";
+    }
+}

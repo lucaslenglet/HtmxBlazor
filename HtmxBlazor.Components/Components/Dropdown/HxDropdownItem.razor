@@ -17,18 +17,39 @@
     /// and composes <see cref="HxButton"/> so unsafe verbs send the antiforgery header.
     /// To close the dropdown after selection, have the endpoint raise
     /// <see cref="HxDropdown.EventClose"/> with <c>TriggerClientEvent</c>.
+    /// In a multi-select dropdown, set <see cref="Selected"/> instead: the item becomes a
+    /// <c>menuitemcheckbox</c> whose request toggles the value and re-renders the host
+    /// fragment with the panel still open (see <see cref="HxDropdown.PanelContent"/>).
     /// </summary>
     [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Checked state of the item in a multi-select dropdown. When set (non-null) the item
+    /// is rendered as a <c>menuitemcheckbox</c> with <c>aria-checked</c> and a check mark.
+    /// Leave <c>null</c> (default) for a regular single-action menu item.
+    /// </summary>
+    [Parameter] public bool? Selected { get; set; }
 
     private IReadOnlyDictionary<string, object> ForwardedAttributes()
     {
         var attributes = new Dictionary<string, object>(AllAttributes(), StringComparer.OrdinalIgnoreCase)
         {
-            ["role"] = "menuitem",
+            ["role"] = Selected is null ? "menuitem" : "menuitemcheckbox",
+        };
+        if (Selected is not null)
+        {
+            attributes["aria-checked"] = Selected.Value ? "true" : "false";
+        }
+
+        var itemClass = Selected switch
+        {
+            null => "hx-dropdown-item",
+            false => "hx-dropdown-item hx-dropdown-item-checkable",
+            true => "hx-dropdown-item hx-dropdown-item-checkable hx-dropdown-item-selected",
         };
         attributes["class"] = attributes.TryGetValue("class", out var userClass)
-            ? $"hx-dropdown-item {userClass}"
-            : "hx-dropdown-item";
+            ? $"{itemClass} {userClass}"
+            : itemClass;
 
         return attributes;
     }

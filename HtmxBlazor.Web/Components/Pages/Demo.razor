@@ -101,6 +101,18 @@
 </section>
 
 <section class="demo-card">
+    <h2>Dropdown (multi-select)</h2>
+    <p>
+        Each <code>HxDropdownItem</code> carries its <code>Selected</code> state
+        (<code>menuitemcheckbox</code>) and toggles its value by re-rendering the host fragment
+        (<code>outerHTML</code> self-swap, selection in the URL). The re-render ships the panel
+        inline through <code>PanelContent</code>, so the menu stays open, and the selection also
+        travels as hidden inputs (<code>Name</code>/<code>Values</code>) for enclosing forms.
+    </p>
+    <DemoMultiDropdown />
+</section>
+
+<section class="demo-card">
     <h2>Table (sort + pagination)</h2>
     <p>An <code>HxTable</code>: the sort and page state lives in the URL; every header or pager click GETs the fragment and the whole table re-renders (<code>outerHTML</code> self-swap).</p>
     <DemoTable />
@@ -121,6 +133,17 @@
         the transparent backdrop.
     </p>
     <DemoAutocomplete />
+</section>
+
+<section class="demo-card">
+    <h2>Autocomplete (multi-select)</h2>
+    <p>
+        An <code>HxAutocomplete</code> with <code>Values</code>: picked values render as chips
+        backed by hidden inputs that accompany every search request, so the suggestions exclude
+        them. Picking a suggestion or removing a chip re-renders this block with the updated
+        list in the URL (<code>outerHTML</code> self-swap).
+    </p>
+    <DemoMultiAutocomplete />
 </section>
 
 <section class="demo-card">
