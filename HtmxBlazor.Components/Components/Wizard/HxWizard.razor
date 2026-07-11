@@ -23,12 +23,11 @@
                 <div class="hx-wizard-actions">
                     @if (CurrentPosition > 1)
                     {
-                        <button type="button"
-                                class="hx-wizard-back"
-                                hx-post="@StepUrl(CurrentPosition - 1)"
-                                hx-include="closest form"
-                                hx-target="@Self"
-                                hx-swap="@HxSwap.OuterHtml.ToAttributeValue()">@BackText</button>
+                        <HxButton Post="@StepUrl(CurrentPosition - 1)"
+                                  Include="closest form"
+                                  Target="@Self"
+                                  Swap="HxSwap.OuterHtml"
+                                  class="hx-wizard-back">@BackText</HxButton>
                     }
                     <button type="submit" class="hx-wizard-next">
                         @(CurrentPosition >= _steps.Count ? FinishText : NextText)

@@ -1,13 +1,10 @@
 @namespace HtmxBlazor.Components
 @inherits HxComponentBase
 
-<button type="button"
-        hx-get="@CloseUrl"
-        hx-target="closest .hx-modal"
-        hx-swap="@HxSwap.OuterHtml.ToAttributeValue()"
-        @attributes="AdditionalAttributes">
-    @ChildContent
-</button>
+<HxButton Get="@CloseUrl"
+          Target="closest .hx-modal"
+          Swap="HxSwap.OuterHtml"
+          @attributes="AdditionalAttributes">@ChildContent</HxButton>
 
 @code {
     /// <summary>

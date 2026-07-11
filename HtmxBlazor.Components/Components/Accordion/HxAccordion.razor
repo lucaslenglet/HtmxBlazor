@@ -10,14 +10,13 @@
                 var isOpen = ReferenceEquals(item, OpenItem);
                 <section class="@(isOpen ? "hx-accordion-item hx-accordion-open" : "hx-accordion-item")">
                     <h3 class="hx-accordion-header">
-                        <button type="button"
-                                class="hx-accordion-toggle"
-                                aria-expanded="@(isOpen ? "true" : "false")"
-                                hx-get="@ToggleUrl(item, isOpen)"
-                                hx-target="@Self"
-                                hx-swap="@HxSwap.OuterHtml.ToAttributeValue()">
+                        <HxButton Get="@ToggleUrl(item, isOpen)"
+                                  Target="@Self"
+                                  Swap="HxSwap.OuterHtml"
+                                  class="hx-accordion-toggle"
+                                  aria-expanded="@(isOpen ? "true" : "false")">
                             @item.Title<span class="hx-accordion-icon">@(isOpen ? "▴" : "▾")</span>
-                        </button>
+                        </HxButton>
                     </h3>
                     @if (isOpen)
                     {

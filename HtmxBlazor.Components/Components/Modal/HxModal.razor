@@ -18,12 +18,11 @@
             <h3>@Title</h3>
             @if (ShowCloseButton)
             {
-                <button type="button"
-                        class="hx-modal-close"
-                        aria-label="Close"
-                        hx-get="@CloseUrl"
-                        hx-target="closest .hx-modal"
-                        hx-swap="@HxSwap.OuterHtml.ToAttributeValue()">&times;</button>
+                <HxButton Get="@CloseUrl"
+                          Target="closest .hx-modal"
+                          Swap="HxSwap.OuterHtml"
+                          class="hx-modal-close"
+                          aria-label="Close">&times;</HxButton>
             }
         </header>
         <div class="hx-modal-body">

@@ -1,19 +1,35 @@
 @namespace HtmxBlazor.Components
 @inherits HxInteractiveComponentBase
 
-<button type="button" role="menuitem" @attributes="AllAttributes()" class="@CssClass">@ChildContent</button>
+@* HxButton only needs the unsafe-verb parameters to decide whether to send the
+   antiforgery header; every other htmx parameter travels pre-formatted (hx-get,
+   hx-target, ...) through the attribute splat. *@
+<HxButton Post="@Post"
+          Put="@Put"
+          Patch="@Patch"
+          Delete="@Delete"
+          @attributes="ForwardedAttributes()">@ChildContent</HxButton>
 
 @code {
     /// <summary>
     /// A menu item inside an <see cref="HxDropdownPanel"/>. Inherits every htmx parameter
-    /// (<c>Get</c>, <c>Post</c>, <c>Target</c>, ...) so the item performs its own request.
+    /// (<c>Get</c>, <c>Post</c>, <c>Target</c>, ...) so the item performs its own request,
+    /// and composes <see cref="HxButton"/> so unsafe verbs send the antiforgery header.
     /// To close the dropdown after selection, have the endpoint raise
     /// <see cref="HxDropdown.EventClose"/> with <c>TriggerClientEvent</c>.
     /// </summary>
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
-    private string CssClass
-        => AdditionalAttributes is not null && AdditionalAttributes.TryGetValue("class", out var userClass)
+    private IReadOnlyDictionary<string, object> ForwardedAttributes()
+    {
+        var attributes = new Dictionary<string, object>(AllAttributes(), StringComparer.OrdinalIgnoreCase)
+        {
+            ["role"] = "menuitem",
+        };
+        attributes["class"] = attributes.TryGetValue("class", out var userClass)
             ? $"hx-dropdown-item {userClass}"
             : "hx-dropdown-item";
+
+        return attributes;
+    }
 }

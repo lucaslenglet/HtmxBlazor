@@ -168,16 +168,17 @@ Utilisé par : `HxNotificationStream`.
 4. **Visibilité `public`** — le compilateur Razor ne résout pas les composants `internal` en balise.
 5. **Nommage** : préfixe `Hx`. Paramètres : `Url` (endpoint fragment), `Id` quand un ciblage est nécessaire, constantes `public const` pour les valeurs par défaut partagées (`DefaultCloseRoute`, `DefaultTarget`…).
 6. **Paramètres** : typés, `[EditorRequired]` quand indispensable, XML doc sur chaque paramètre. Splatter `AllAttributes()` (interactif) ou `AdditionalAttributes` (statique) sur la racine.
-7. **CSS** : classes préfixées `hx-` dans `wwwroot/htmx-blazor.css`, minimalistes et surchargeables. Pas de style inline.
-8. **Accessibilité** : rôles ARIA (`role="tablist"`, `aria-selected`, `aria-modal`…) dès la conception.
-9. **Endpoint** : si le composant nécessite un endpoint générique, l'exposer en extension `MapHxXxx()` dans `Endpoints/`.
-10. **Démo** : fragment `Demo*.razor` dans `HtmxBlazor.Web/Components/Fragments/<Famille>/` (sous-dossiers en miroir de ceux de la librairie), avec `public const string Route` et `@namespace HtmxBlazor.Web.Components.Fragments` en première ligne (namespace unique pour tous les fragments, quel que soit le sous-dossier) ; mapping dans `FragmentEndpoints.cs`, section dans `Pages/Demo.razor`.
-11. **Vérifier** :
+7. **Composer les primitives** : tout élément interne qui émet une requête htmx passe par elles — `HxButton` pour un `<button>` (header antiforgery automatique sur les verbes non sûrs), `HxElement` pour un autre tag interactif (input…), `HxForm` pour un formulaire. Seuls les conteneurs structurels passifs (panneaux, backdrops, sentinelles, régions à polling) restent des éléments bruts porteurs d'attributs `hx-*`.
+8. **CSS** : classes préfixées `hx-` dans `wwwroot/htmx-blazor.css`, minimalistes et surchargeables. Pas de style inline.
+9. **Accessibilité** : rôles ARIA (`role="tablist"`, `aria-selected`, `aria-modal`…) dès la conception.
+10. **Endpoint** : si le composant nécessite un endpoint générique, l'exposer en extension `MapHxXxx()` dans `Endpoints/`.
+11. **Démo** : fragment `Demo*.razor` dans `HtmxBlazor.Web/Components/Fragments/<Famille>/` (sous-dossiers en miroir de ceux de la librairie), avec `public const string Route` et `@namespace HtmxBlazor.Web.Components.Fragments` en première ligne (namespace unique pour tous les fragments, quel que soit le sous-dossier) ; mapping dans `FragmentEndpoints.cs`, section dans `Pages/Demo.razor`.
+12. **Vérifier** :
     - `dotnet build` sans erreur ;
     - curl des fragments (`-H "HX-Request: true"`) : fragment nu, pas de document complet, headers `HX-*` attendus ;
     - rejet 400 des POST sans jeton antiforgery le cas échéant ;
     - test navigateur (Playwright + Chromium) du comportement au clic.
-12. **Documenter** : ligne dans le tableau des composants du README ; nouveau pattern → l'ajouter au §6.
+13. **Documenter** : ligne dans le tableau des composants du README ; nouveau pattern → l'ajouter au §6.
 
 ## 8. Pièges connus
 

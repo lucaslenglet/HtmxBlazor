@@ -2,12 +2,11 @@
 @inherits HxComponentBase
 
 <div id="@Id" class="hx-dropdown" @attributes="AdditionalAttributes">
-    <button type="button"
-            class="hx-dropdown-trigger"
-            aria-haspopup="menu"
-            hx-get="@Url"
-            hx-target="@PanelSelector"
-            hx-swap="@HxSwap.InnerHtml.ToAttributeValue()">@ChildContent</button>
+    <HxButton Get="@Url"
+              Target="@PanelSelector"
+              Swap="HxSwap.InnerHtml"
+              class="hx-dropdown-trigger"
+              aria-haspopup="menu">@ChildContent</HxButton>
     <div id="@PanelId"
          class="hx-dropdown-panel"
          hx-get="@DismissUrl"

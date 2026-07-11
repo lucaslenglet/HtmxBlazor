@@ -2,18 +2,19 @@
 @inherits HxComponentBase
 
 <div id="@Id" class="hx-autocomplete" @attributes="AdditionalAttributes">
-    <input type="search"
-           class="hx-autocomplete-input"
-           role="combobox"
-           aria-controls="@PanelId"
-           autocomplete="off"
-           name="@Name"
-           value="@Value"
-           placeholder="@Placeholder"
-           hx-get="@Url"
-           hx-trigger="@SearchTrigger"
-           hx-target="@PanelSelector"
-           hx-swap="@HxSwap.InnerHtml.ToAttributeValue()" />
+    <HxElement Tag="input"
+               Get="@Url"
+               Trigger="@SearchTrigger"
+               Target="@PanelSelector"
+               Swap="HxSwap.InnerHtml"
+               type="search"
+               class="hx-autocomplete-input"
+               role="combobox"
+               aria-controls="@PanelId"
+               autocomplete="off"
+               name="@Name"
+               value="@Value"
+               placeholder="@Placeholder" />
     <div id="@PanelId"
          class="hx-autocomplete-panel"
          hx-get="@DismissUrl"

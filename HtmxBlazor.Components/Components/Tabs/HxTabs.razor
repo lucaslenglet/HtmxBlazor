@@ -9,15 +9,12 @@
                 @foreach (var tab in _tabs)
                 {
                     var isActive = ReferenceEquals(tab, ActiveTab);
-                    <button type="button"
-                            role="tab"
-                            aria-selected="@(isActive ? "true" : "false")"
-                            class="@(isActive ? "hx-tab hx-tab-active" : "hx-tab")"
-                            hx-get="@TabUrl(tab)"
-                            hx-target="@($"#{Id}")"
-                            hx-swap="@HxSwap.OuterHtml.ToAttributeValue()">
-                        @tab.Title
-                    </button>
+                    <HxButton Get="@TabUrl(tab)"
+                              Target="@($"#{Id}")"
+                              Swap="HxSwap.OuterHtml"
+                              role="tab"
+                              aria-selected="@(isActive ? "true" : "false")"
+                              class="@(isActive ? "hx-tab hx-tab-active" : "hx-tab")">@tab.Title</HxButton>
                 }
             </div>
             <div class="hx-tabs-panel" role="tabpanel">

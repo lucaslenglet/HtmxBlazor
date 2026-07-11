@@ -20,13 +20,12 @@
                             {
                                 var isSorted = string.Equals(column.SortKey, Sort, StringComparison.OrdinalIgnoreCase);
                                 <th scope="col" aria-sort="@(isSorted ? (Desc ? "descending" : "ascending") : null)">
-                                    <button type="button"
-                                            class="@(isSorted ? "hx-table-sort hx-table-sorted" : "hx-table-sort")"
-                                            hx-get="@SortUrl(column, isSorted)"
-                                            hx-target="@Self"
-                                            hx-swap="@HxSwap.OuterHtml.ToAttributeValue()">
+                                    <HxButton Get="@SortUrl(column, isSorted)"
+                                              Target="@Self"
+                                              Swap="HxSwap.OuterHtml"
+                                              class="@(isSorted ? "hx-table-sort hx-table-sorted" : "hx-table-sort")">
                                         @column.Title<span class="hx-table-sort-icon">@(isSorted ? (Desc ? " ▼" : " ▲") : null)</span>
-                                    </button>
+                                    </HxButton>
                                 </th>
                             }
                         }
@@ -56,19 +55,17 @@
             @if (PageCount > 1)
             {
                 <nav class="hx-table-pager" aria-label="Pagination">
-                    <button type="button"
-                            class="hx-table-page"
-                            disabled="@(Page <= 1)"
-                            hx-get="@PageUrl(Page - 1)"
-                            hx-target="@Self"
-                            hx-swap="@HxSwap.OuterHtml.ToAttributeValue()">‹ Previous</button>
+                    <HxButton Get="@PageUrl(Page - 1)"
+                              Target="@Self"
+                              Swap="HxSwap.OuterHtml"
+                              class="hx-table-page"
+                              disabled="@(Page <= 1)">‹ Previous</HxButton>
                     <span class="hx-table-page-status">Page @Page / @PageCount</span>
-                    <button type="button"
-                            class="hx-table-page"
-                            disabled="@(Page >= PageCount)"
-                            hx-get="@PageUrl(Page + 1)"
-                            hx-target="@Self"
-                            hx-swap="@HxSwap.OuterHtml.ToAttributeValue()">Next ›</button>
+                    <HxButton Get="@PageUrl(Page + 1)"
+                              Target="@Self"
+                              Swap="HxSwap.OuterHtml"
+                              class="hx-table-page"
+                              disabled="@(Page >= PageCount)">Next ›</HxButton>
                 </nav>
             }
         </div>

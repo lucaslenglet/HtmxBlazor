@@ -59,12 +59,11 @@ else
             <div class="hx-toast-body">@ChildContent</div>
             @if (ShowCloseButton)
             {
-                <button type="button"
-                        class="hx-toast-close"
-                        aria-label="Dismiss"
-                        hx-get="@DismissUrl"
-                        hx-target="closest .hx-toast"
-                        hx-swap="@HxSwap.OuterHtml.ToAttributeValue()">&times;</button>
+                <HxButton Get="@DismissUrl"
+                          Target="closest .hx-toast"
+                          Swap="HxSwap.OuterHtml"
+                          class="hx-toast-close"
+                          aria-label="Dismiss">&times;</HxButton>
             }
         </div>
     </text>;

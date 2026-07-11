@@ -4,7 +4,7 @@ Librairie de composants HTML interactifs : **Blazor SSR statique** pour le rendu
 
 ## Référence obligatoire
 
-**Avant d'ajouter ou modifier un composant, lire [`docs/SPECS.md`](docs/SPECS.md)** : architecture, contrats des classes de base, les 9 patterns d'interaction établis, la checklist en 12 points pour un nouveau composant, et les pièges connus. Tout nouveau composant doit suivre un pattern existant (ou en documenter un nouveau au §6 des specs).
+**Avant d'ajouter ou modifier un composant, lire [`docs/SPECS.md`](docs/SPECS.md)** : architecture, contrats des classes de base, les 9 patterns d'interaction établis, la checklist en 13 points pour un nouveau composant, et les pièges connus. Tout nouveau composant doit suivre un pattern existant (ou en documenter un nouveau au §6 des specs).
 
 ## Structure
 
@@ -25,4 +25,4 @@ dotnet build HtmxBlazor.Web/HtmxBlazor.Web.csproj   # build (la cible est net9.0
 dotnet run --project HtmxBlazor.Web                 # lancer la démo, puis ouvrir /demo
 ```
 
-Vérification d'un composant : build, curl des fragments avec `-H "HX-Request: true"` (fragment nu attendu, pas de document complet), rejet 400 des POST sans jeton, et test navigateur du clic (Playwright + Chromium) — détail au §7.11 des specs.
+Vérification d'un composant : build, curl des fragments avec `-H "HX-Request: true"` (fragment nu attendu, pas de document complet), rejet 400 des POST sans jeton, et test navigateur du clic (Playwright + Chromium) — détail au §7.12 des specs.
