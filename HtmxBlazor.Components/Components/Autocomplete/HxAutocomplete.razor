@@ -1,0 +1,124 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<div id="@Id" class="hx-autocomplete" @attributes="AdditionalAttributes">
+    @if (Values is { Count: > 0 })
+    {
+        <ul class="hx-autocomplete-chips">
+            @foreach (var value in Values)
+            {
+                <li class="hx-autocomplete-chip">
+                    <span class="hx-autocomplete-chip-label">@value</span>
+                    <input type="hidden" name="@ValuesName" value="@value" />
+                    @if (RemoveUrl is not null)
+                    {
+                        <HxButton Get="@RemoveUrl(value)"
+                                  Target="@RemoveTarget"
+                                  Swap="HxSwap.OuterHtml"
+                                  class="hx-autocomplete-chip-remove"
+                                  aria-label="@($"Remove {value}")">×</HxButton>
+                    }
+                </li>
+            }
+        </ul>
+    }
+    <HxElement Tag="input"
+               Get="@Url"
+               Trigger="@SearchTrigger"
+               Target="@PanelSelector"
+               Swap="HxSwap.InnerHtml"
+               Include="@SearchInclude"
+               type="search"
+               class="hx-autocomplete-input"
+               role="combobox"
+               aria-controls="@PanelId"
+               autocomplete="off"
+               name="@Name"
+               value="@Value"
+               placeholder="@Placeholder" />
+    <div id="@PanelId"
+         class="hx-autocomplete-panel"
+         hx-get="@DismissUrl"
+         hx-trigger="@CloseTrigger"
+         hx-swap="@HxSwap.InnerHtml.ToAttributeValue()"></div>
+</div>
+
+@code {
+    /// <summary>
+    /// Name of the client event that closes every open suggestion panel. Fragment
+    /// endpoints can raise it with <c>TriggerClientEvent(HxAutocomplete.EventClose)</c>.
+    /// </summary>
+    public const string EventClose = "hx-autocomplete-close";
+
+    private static readonly string CloseTrigger = HxTrigger.On(EventClose).From("body");
+
+    /// <summary>
+    /// A text input whose keystrokes (debounced) GET <see cref="Url"/> and render the
+    /// returned suggestions — an <see cref="HxAutocompletePanel"/> — into the panel
+    /// below. Picking a suggestion is a request owned by the option (typically a GET
+    /// re-rendering the fragment hosting this component with <see cref="Value"/> set,
+    /// an <c>outerHTML</c> self-swap that also empties the panel). For an empty query,
+    /// return an empty body: an empty <c>innerHTML</c> swap clears the panel. The panel
+    /// also clears itself on the backdrop click rendered by
+    /// <see cref="HxAutocompletePanel"/> or when an <see cref="EventClose"/> event is
+    /// raised through <c>HX-Trigger</c>. Map the empty endpoint once with
+    /// <c>app.MapHxDismiss()</c>.
+    /// For a <em>multi-select</em> autocomplete, set <see cref="Values"/>: the picked
+    /// values render as removable chips backed by hidden inputs (named
+    /// <see cref="ValuesName"/>) that accompany every search request, so the suggestion
+    /// endpoint can exclude them and build pick URLs preserving the selection. Picking
+    /// or removing keeps following the same self-swap recipe, with the whole list in
+    /// the URL instead of a single value.
+    /// </summary>
+    [Parameter, EditorRequired] public string Id { get; set; } = default!;
+
+    /// <summary>Fragment endpoint URL serving the suggestions.</summary>
+    [Parameter, EditorRequired] public string Url { get; set; } = default!;
+
+    /// <summary>Name of the input, i.e. the query parameter carrying the typed text. Defaults to <c>q</c>.</summary>
+    [Parameter] public string Name { get; set; } = "q";
+
+    /// <summary>Current value of the input (e.g. the picked suggestion after a self-swap).</summary>
+    [Parameter] public string? Value { get; set; }
+
+    /// <summary>
+    /// Values already picked in a multi-select autocomplete. When set (non-null), each
+    /// value renders as a chip with a hidden input; leave <c>null</c> (default) for a
+    /// single-value autocomplete.
+    /// </summary>
+    [Parameter] public IReadOnlyCollection<string>? Values { get; set; }
+
+    /// <summary>
+    /// Name of the hidden inputs carrying <see cref="Values"/> — the query parameter the
+    /// suggestion endpoint receives them under, and the field name submitted with any
+    /// enclosing form. Defaults to <c>values</c>.
+    /// </summary>
+    [Parameter] public string ValuesName { get; set; } = "values";
+
+    /// <summary>
+    /// Builds the URL removing one picked value, typically the host fragment route with
+    /// every value but this one (<c>outerHTML</c> self-swap targeting
+    /// <see cref="RemoveTarget"/>). Chips render no remove button when <c>null</c>.
+    /// </summary>
+    [Parameter] public Func<string, string>? RemoveUrl { get; set; }
+
+    /// <summary>Element re-rendered by a chip removal (<c>hx-target</c> CSS selector), typically the host fragment.</summary>
+    [Parameter] public string? RemoveTarget { get; set; }
+
+    /// <summary>Placeholder of the input.</summary>
+    [Parameter] public string? Placeholder { get; set; }
+
+    /// <summary>Debounce applied to keystrokes before requesting suggestions. Defaults to 300 ms.</summary>
+    [Parameter] public TimeSpan Delay { get; set; } = TimeSpan.FromMilliseconds(300);
+
+    /// <summary>URL of the empty endpoint used to close the panel.</summary>
+    [Parameter] public string DismissUrl { get; set; } = HxDismissEndpointExtensions.DefaultDismissRoute;
+
+    private string SearchTrigger => HxTrigger.On("input").Changed().Delay(Delay).ToString();
+
+    private string? SearchInclude => Values is null ? null : $"#{Id} input[type=hidden]";
+
+    private string PanelId => $"{Id}-panel";
+
+    private string PanelSelector => $"#{PanelId}";
+}

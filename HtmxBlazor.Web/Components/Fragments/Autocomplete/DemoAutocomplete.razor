@@ -1,0 +1,22 @@
+@namespace HtmxBlazor.Web.Components.Fragments
+@inherits HxComponentBase
+
+<div id="@TargetId" class="demo-autocomplete">
+    <HxAutocomplete Id="demo-country"
+                    Url="@SuggestFragment.Route"
+                    Value="@Value"
+                    Placeholder="Type a country…" />
+    @if (!string.IsNullOrEmpty(Value))
+    {
+        <p class="demo-picked">Selected: <strong>@Value</strong></p>
+    }
+</div>
+
+@code {
+    public const string Route = "/fragments/demo-autocomplete";
+
+    /// <summary>Id (and selector target) of the block re-rendered when a suggestion is picked.</summary>
+    public const string TargetId = "demo-autocomplete";
+
+    [Parameter] public string? Value { get; set; }
+}

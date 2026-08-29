@@ -1,0 +1,35 @@
+@namespace HtmxBlazor.Components
+@inherits HxInteractiveComponentBase
+
+@* HxButton only needs the unsafe-verb parameters to decide whether to send the
+   antiforgery header; every other htmx parameter travels pre-formatted (hx-get,
+   hx-target, ...) through the attribute splat. *@
+<HxButton Post="@Post"
+          Put="@Put"
+          Patch="@Patch"
+          Delete="@Delete"
+          @attributes="ForwardedAttributes()">@ChildContent</HxButton>
+
+@code {
+    /// <summary>
+    /// A suggestion inside an <see cref="HxAutocompletePanel"/>. Inherits every htmx
+    /// parameter (<c>Get</c>, <c>Target</c>, ...) so the option performs its own request —
+    /// typically a GET re-rendering the fragment hosting the <see cref="HxAutocomplete"/>
+    /// with the picked value (<c>outerHTML</c> self-swap) — and composes
+    /// <see cref="HxButton"/> so unsafe verbs send the antiforgery header.
+    /// </summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private IReadOnlyDictionary<string, object> ForwardedAttributes()
+    {
+        var attributes = new Dictionary<string, object>(AllAttributes(), StringComparer.OrdinalIgnoreCase)
+        {
+            ["role"] = "option",
+        };
+        attributes["class"] = attributes.TryGetValue("class", out var userClass)
+            ? $"hx-autocomplete-option {userClass}"
+            : "hx-autocomplete-option";
+
+        return attributes;
+    }
+}

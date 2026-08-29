@@ -1,20 +1,9 @@
-﻿@page "/"
+@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>HtmxBlazor</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>HtmxBlazor</h1>
 
-Welcome to your new app.
-<br />
-<br />
+<p>Interactive HTML components rendered by Blazor static SSR and driven by htmx.</p>
 
-<Ticks style="background-color: lightcoral" />
-<br />
-
-<Ticks2 style="background-color: lightslategray;" />
-<br />
-
-<div hx-get="@GetTicks.Route.AddQueryParam(GetTicks.QueryTriggerEventTicksReceived, true)"
-     hx-trigger="load, @GetTicks.EventTicksReceived from:body delay:1s"
-     hx-swap="innerHTML">
-</div>
+<HxLink Href="/demo">HtmxBlazor.Components demo →</HxLink>

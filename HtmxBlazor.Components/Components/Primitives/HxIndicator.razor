@@ -1,0 +1,25 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<span class="htmx-indicator" @attributes="AdditionalAttributes">
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+    else
+    {
+        @Text
+    }
+</span>
+
+@code {
+    /// <summary>
+    /// A loading indicator: hidden by default, htmx makes it visible while a request
+    /// is in flight (via the <c>htmx-request</c> class). Point an <c>Indicator</c>
+    /// parameter (or <c>hx-indicator</c>) at it, or place it inside the requesting element.
+    /// </summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Text of the default indicator when no child content is provided.</summary>
+    [Parameter] public string Text { get; set; } = "Loading…";
+}

@@ -1,0 +1,72 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+@if (IsFragmentRequest)
+{
+    @Body
+}
+else
+{
+    <div class="hx-infinite" @attributes="AdditionalAttributes">
+        @Body
+    </div>
+}
+
+@code {
+    private static readonly string SentinelTrigger = HxTrigger.Intersect().Once();
+
+    /// <summary>
+    /// Infinite scroll: renders the items of the current page followed by a sentinel
+    /// that fetches the next page when it enters the viewport (<c>intersect once</c>,
+    /// so it also works inside scrollable containers). The fragment response — this
+    /// same component rendered for the next page — replaces the sentinel
+    /// (<c>outerHTML</c>), appending the new items and a fresh sentinel.
+    /// The wrapper <c>div.hx-infinite</c> is only rendered on the initial page,
+    /// fragment responses contain the items and sentinel only.
+    /// </summary>
+    [Parameter, EditorRequired] public string Url { get; set; } = default!;
+
+    /// <summary>Number of the page the sentinel will fetch.</summary>
+    [Parameter, EditorRequired] public int NextPage { get; set; }
+
+    /// <summary>Whether there is a next page. When <c>false</c> no sentinel is rendered and the feed ends.</summary>
+    [Parameter] public bool HasMore { get; set; }
+
+    /// <summary>Name of the query parameter carrying the page number. Defaults to <c>page</c>.</summary>
+    [Parameter] public string PageParam { get; set; } = "page";
+
+    /// <summary>The items of the current page.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Content of the sentinel while the next page is loading.</summary>
+    [Parameter] public RenderFragment? Placeholder { get; set; }
+
+    /// <summary>Text of the default sentinel placeholder when no <see cref="Placeholder"/> is provided.</summary>
+    [Parameter] public string PlaceholderText { get; set; } = "Loading more…";
+
+    private bool IsFragmentRequest => IsHtmxRequest
+        && !HttpContext!.Request.IsHtmxBoosted()
+        && !HttpContext!.Request.IsHtmxHistoryRestore();
+
+    private string NextUrl => $"{Url}{(Url.Contains('?') ? '&' : '?')}{PageParam}={NextPage}";
+
+    private RenderFragment Body => @<text>
+        @ChildContent
+        @if (HasMore)
+        {
+            <div class="hx-infinite-sentinel"
+                 hx-get="@NextUrl"
+                 hx-trigger="@SentinelTrigger"
+                 hx-swap="@HxSwap.OuterHtml.ToAttributeValue()">
+                @if (Placeholder is not null)
+                {
+                    @Placeholder
+                }
+                else
+                {
+                    <span class="htmx-indicator">@PlaceholderText</span>
+                }
+            </div>
+        }
+    </text>;
+}

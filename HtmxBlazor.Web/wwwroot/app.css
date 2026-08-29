@@ -36,3 +36,115 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+/* HtmxBlazor.Components demo */
+.demo-card {
+    border: 1px solid #d0d0d0;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin: 1rem 0;
+    max-width: 42rem;
+}
+
+    .demo-card h2 {
+        margin-top: 0;
+        font-size: 1.2rem;
+    }
+
+.demo-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.demo-badge {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    background-color: #e8e8f8;
+    font-size: 0.85rem;
+}
+
+.demo-feed {
+    max-height: 10rem;
+    overflow-y: auto;
+    border: 1px solid #e4e4e4;
+    border-radius: 6px;
+    padding: 0 1rem;
+}
+
+.demo-feed-item {
+    margin: 0;
+    padding: 0.4rem 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.demo-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+    .demo-items li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.35rem 0;
+        border-bottom: 1px dashed #eee;
+    }
+.demo-picked {
+    margin: 0.5rem 0 0;
+}
+
+.hx-wizard-body label {
+    display: block;
+    margin-bottom: 0.6rem;
+}
+
+.demo-wizard-review {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.25rem 1rem;
+    margin: 0;
+}
+
+    .demo-wizard-review dd {
+        margin: 0;
+    }
+
+.demo-wizard-done p {
+    margin-top: 0;
+}
+
+.demo-rows table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 0.6rem;
+}
+
+.demo-rows td,
+.demo-rows th {
+    padding: 0.35rem 0.5rem;
+    border-bottom: 1px solid #e4e4e4;
+    text-align: left;
+}
+
+.demo-notifications {
+    max-height: 10rem;
+    overflow-y: auto;
+    border: 1px solid #e4e4e4;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+}
+
+.demo-notification {
+    margin: 0;
+    padding: 0.2rem 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.demo-notification-muted {
+    color: #777;
+}

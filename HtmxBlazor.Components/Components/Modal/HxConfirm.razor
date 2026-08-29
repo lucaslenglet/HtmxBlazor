@@ -1,0 +1,46 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<HxModal Title="@Title" CloseUrl="@CloseUrl" AdditionalAttributes="@AdditionalAttributes">
+    <ChildContent>
+        @ChildContent
+    </ChildContent>
+    <Footer>
+        <HxModalClose CloseUrl="@CloseUrl" class="hx-confirm-cancel">@CancelText</HxModalClose>
+        <HxButton Post="@Action"
+                  Vals="@Vals"
+                  Target="closest .hx-modal"
+                  Swap="HxSwap.OuterHtml"
+                  class="hx-confirm-action">@ConfirmText</HxButton>
+    </Footer>
+</HxModal>
+
+@code {
+    /// <summary>
+    /// A confirmation modal, meant to be served as a fragment into an <see cref="HxModalRoot"/>
+    /// (like any <see cref="HxModal"/>). Cancelling closes the modal through the empty
+    /// endpoint; confirming POSTs <see cref="Action"/> (antiforgery header included) and
+    /// swaps the response over the modal (<c>outerHTML</c>) — so an empty-bodied response
+    /// closes it. The action endpoint can update the rest of the page with out-of-band
+    /// elements (<c>hx-swap-oob</c>) or <c>HX-Trigger</c> events.
+    /// </summary>
+    [Parameter] public string Title { get; set; } = "Confirm";
+
+    /// <summary>The confirmation message.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>URL POSTed when the user confirms.</summary>
+    [Parameter, EditorRequired] public string Action { get; set; } = default!;
+
+    /// <summary>Extra values submitted with the confirmation POST, as a JSON object (<c>hx-vals</c>).</summary>
+    [Parameter] public string? Vals { get; set; }
+
+    /// <summary>Label of the confirm button. Defaults to <c>Confirm</c>.</summary>
+    [Parameter] public string ConfirmText { get; set; } = "Confirm";
+
+    /// <summary>Label of the cancel button. Defaults to <c>Cancel</c>.</summary>
+    [Parameter] public string CancelText { get; set; } = "Cancel";
+
+    /// <summary>URL of the empty endpoint used to close the modal without confirming.</summary>
+    [Parameter] public string CloseUrl { get; set; } = HxModal.DefaultCloseRoute;
+}

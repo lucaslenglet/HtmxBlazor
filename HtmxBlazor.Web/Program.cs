@@ -27,7 +27,9 @@ app.UseAntiforgery();
 
 app.MapStaticAssets();
 
-app.MapTicks();
+app.MapFragments();
+
+app.MapNotificationStream();
 
 app.MapRazorComponents<App>();
 

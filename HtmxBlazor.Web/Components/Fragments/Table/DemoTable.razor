@@ -1,0 +1,59 @@
+@namespace HtmxBlazor.Web.Components.Fragments
+<HxTable Id="demo-table"
+         Url="@Route"
+         Items="@_pageItems"
+         Sort="@Sort"
+         Desc="@Desc"
+         Page="@Page"
+         PageCount="@_pageCount">
+    <HxColumn Title="Language" SortKey="name">@context.Name</HxColumn>
+    <HxColumn Title="Year" SortKey="year">@context.Year</HxColumn>
+    <HxColumn Title="Paradigm">@context.Paradigm</HxColumn>
+</HxTable>
+
+@code {
+    public const string Route = "/fragments/demo-table";
+
+    private const int PageSize = 4;
+
+    public sealed record Language(string Name, int Year, string Paradigm);
+
+    private static readonly Language[] All =
+    [
+        new("C#", 2000, "Object-oriented"),
+        new("F#", 2005, "Functional"),
+        new("JavaScript", 1995, "Multi-paradigm"),
+        new("TypeScript", 2012, "Multi-paradigm"),
+        new("Python", 1991, "Multi-paradigm"),
+        new("Rust", 2010, "Multi-paradigm"),
+        new("Go", 2009, "Concurrent"),
+        new("Haskell", 1990, "Functional"),
+        new("Erlang", 1986, "Concurrent"),
+        new("Lisp", 1958, "Functional"),
+    ];
+
+    [Parameter] public string? Sort { get; set; }
+    [Parameter] public bool Desc { get; set; }
+    [Parameter] public int Page { get; set; } = 1;
+
+    private Language[] _pageItems = [];
+    private int _pageCount = 1;
+
+    protected override void OnParametersSet()
+    {
+        IEnumerable<Language> items = Sort?.ToLowerInvariant() switch
+        {
+            "name" => All.OrderBy(l => l.Name),
+            "year" => All.OrderBy(l => l.Year),
+            _ => All,
+        };
+        if (Desc)
+        {
+            items = items.Reverse();
+        }
+
+        _pageCount = (All.Length + PageSize - 1) / PageSize;
+        Page = Math.Clamp(Page, 1, _pageCount);
+        _pageItems = items.Skip((Page - 1) * PageSize).Take(PageSize).ToArray();
+    }
+}

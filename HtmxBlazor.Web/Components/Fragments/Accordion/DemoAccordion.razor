@@ -1,0 +1,20 @@
+@namespace HtmxBlazor.Web.Components.Fragments
+@inherits HxComponentBase
+
+<HxAccordion Id="demo-accordion" Url="@Route" Open="@Open">
+    <HxAccordionItem Key="ssr" Title="What does Blazor SSR do here?">
+        <p>It renders every component to plain HTML on the server, once per request. No circuit, no WebAssembly.</p>
+    </HxAccordionItem>
+    <HxAccordionItem Key="htmx" Title="And htmx?">
+        <p>It reads the <code>hx-*</code> attributes and swaps fragment responses into the DOM. That's the whole interactivity layer.</p>
+    </HxAccordionItem>
+    <HxAccordionItem Key="js" Title="Where is the JavaScript?">
+        <p>There is none to write: the only scripts are <code>htmx.min.js</code> and, for the SSE demo below, the official <code>sse</code> extension.</p>
+    </HxAccordionItem>
+</HxAccordion>
+
+@code {
+    public const string Route = "/fragments/demo-accordion";
+
+    [Parameter] public string? Open { get; set; }
+}

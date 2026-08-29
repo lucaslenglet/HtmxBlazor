@@ -1,0 +1,19 @@
+@namespace HtmxBlazor.Web.Components.Fragments
+@inherits HxComponentBase
+
+<DemoItems hx-swap-oob="outerHTML" />
+<HxToast Variant="HxToastVariant.Success">Deleted “@Item”.</HxToast>
+
+@code {
+    public const string Route = "/fragments/delete-item";
+
+    [Parameter] public string? Item { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (IsHtmxRequest && !string.IsNullOrEmpty(Item))
+        {
+            DemoItems.Remove(Item);
+        }
+    }
+}

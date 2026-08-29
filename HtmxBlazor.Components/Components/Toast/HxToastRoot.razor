@@ -1,0 +1,17 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<div id="@Id" class="hx-toasts" @attributes="AdditionalAttributes"></div>
+
+@code {
+    /// <summary>
+    /// Empty container that <see cref="HxToast"/> elements are swapped into out-of-band.
+    /// Place one near the end of the page (or in the layout).
+    /// </summary>
+    public const string DefaultId = "hx-toast-root";
+
+    /// <summary>The default target selector: <c>#hx-toast-root</c>.</summary>
+    public const string DefaultTarget = $"#{DefaultId}";
+
+    [Parameter] public string Id { get; set; } = DefaultId;
+}

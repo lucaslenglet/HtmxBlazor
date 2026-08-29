@@ -9,6 +9,14 @@
       "files": [
         "htmx.min.js"
       ]
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "htmx-ext-sse@2.2.4",
+      "destination": "wwwroot/lib/htmx-ext-sse/",
+      "files": [
+        "dist/sse.min.js"
+      ]
     }
   ]
 }

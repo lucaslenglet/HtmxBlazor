@@ -1,0 +1,67 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<div class="hx-modal" @attributes="AdditionalAttributes">
+    @if (CloseOnBackdrop)
+    {
+        <div class="hx-modal-backdrop"
+             hx-get="@CloseUrl"
+             hx-target="closest .hx-modal"
+             hx-swap="@HxSwap.OuterHtml.ToAttributeValue()"></div>
+    }
+    else
+    {
+        <div class="hx-modal-backdrop"></div>
+    }
+    <div class="hx-modal-dialog" role="dialog" aria-modal="true" aria-label="@Title">
+        <header class="hx-modal-header">
+            <h3>@Title</h3>
+            @if (ShowCloseButton)
+            {
+                <HxButton Get="@CloseUrl"
+                          Target="closest .hx-modal"
+                          Swap="HxSwap.OuterHtml"
+                          class="hx-modal-close"
+                          aria-label="Close">&times;</HxButton>
+            }
+        </header>
+        <div class="hx-modal-body">
+            @ChildContent
+        </div>
+        @if (Footer is not null)
+        {
+            <footer class="hx-modal-footer">
+                @Footer
+            </footer>
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// Modal dialog chrome, meant to be returned by a fragment endpoint and swapped
+    /// into an <see cref="HxModalRoot"/>. Opening is a plain htmx GET; closing is a
+    /// GET to <see cref="CloseUrl"/> (an empty response) that removes the modal with
+    /// an <c>outerHTML</c> swap — no JavaScript involved. Map the close endpoint once
+    /// with <c>app.MapHxModalClose()</c>.
+    /// </summary>
+    public const string DefaultCloseRoute = "/hx/modal-close";
+
+    /// <summary>Title shown in the modal header.</summary>
+    [Parameter] public string? Title { get; set; }
+
+    /// <summary>Body of the modal.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Optional footer, typically action buttons (see <see cref="HxModalClose"/>).</summary>
+    [Parameter] public RenderFragment? Footer { get; set; }
+
+    /// <summary>URL of the empty endpoint used to close the modal.</summary>
+    [Parameter] public string CloseUrl { get; set; } = DefaultCloseRoute;
+
+    /// <summary>Whether clicking the backdrop closes the modal. Defaults to <c>true</c>.</summary>
+    [Parameter] public bool CloseOnBackdrop { get; set; } = true;
+
+    /// <summary>Whether to show the × button in the header. Defaults to <c>true</c>.</summary>
+    [Parameter] public bool ShowCloseButton { get; set; } = true;
+}

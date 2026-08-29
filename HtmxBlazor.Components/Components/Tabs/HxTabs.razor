@@ -1,0 +1,64 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<CascadingValue Value="this" IsFixed="true">
+    @ChildContent
+    <HxDefer>
+        <div id="@Id" class="hx-tabs" @attributes="AdditionalAttributes">
+            <div class="hx-tabs-nav" role="tablist">
+                @foreach (var tab in _tabs)
+                {
+                    var isActive = ReferenceEquals(tab, ActiveTab);
+                    <HxButton Get="@TabUrl(tab)"
+                              Target="@($"#{Id}")"
+                              Swap="HxSwap.OuterHtml"
+                              role="tab"
+                              aria-selected="@(isActive ? "true" : "false")"
+                              class="@(isActive ? "hx-tab hx-tab-active" : "hx-tab")">@tab.Title</HxButton>
+                }
+            </div>
+            <div class="hx-tabs-panel" role="tabpanel">
+                @ActiveTab?.ChildContent
+            </div>
+        </div>
+    </HxDefer>
+</CascadingValue>
+
+@code {
+    private readonly List<HxTab> _tabs = [];
+
+    /// <summary>
+    /// Server-driven tabs: clicking a header GETs <see cref="Url"/> with the tab key
+    /// as query parameter, and the returned fragment (the same component re-rendered
+    /// with the new active tab) replaces the whole tab set. Inactive tab content is
+    /// never rendered nor sent over the wire.
+    /// </summary>
+    [Parameter, EditorRequired] public string Id { get; set; } = default!;
+
+    /// <summary>Fragment endpoint URL re-rendering the component hosting these tabs.</summary>
+    [Parameter, EditorRequired] public string Url { get; set; } = default!;
+
+    /// <summary>Key of the active tab. Falls back to the first tab when null or unknown.</summary>
+    [Parameter] public string? Active { get; set; }
+
+    /// <summary>Name of the query parameter carrying the tab key. Defaults to <c>tab</c>.</summary>
+    [Parameter] public string QueryParam { get; set; } = "tab";
+
+    /// <summary>The <see cref="HxTab"/> declarations.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private HxTab? ActiveTab =>
+        _tabs.FirstOrDefault(t => string.Equals(t.Key, Active, StringComparison.OrdinalIgnoreCase))
+        ?? _tabs.FirstOrDefault();
+
+    internal void AddTab(HxTab tab)
+    {
+        if (!_tabs.Any(t => string.Equals(t.Key, tab.Key, StringComparison.OrdinalIgnoreCase)))
+        {
+            _tabs.Add(tab);
+        }
+    }
+
+    private string TabUrl(HxTab tab)
+        => $"{Url}{(Url.Contains('?') ? '&' : '?')}{QueryParam}={Uri.EscapeDataString(tab.Key)}";
+}

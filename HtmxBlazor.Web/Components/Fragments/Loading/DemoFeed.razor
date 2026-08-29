@@ -1,0 +1,16 @@
+@namespace HtmxBlazor.Web.Components.Fragments
+<HxInfiniteScroll Url="@Route" NextPage="@(Page + 1)" HasMore="@(Page < PageCount)">
+    @foreach (var i in Enumerable.Range((Page - 1) * PageSize + 1, PageSize))
+    {
+        <p class="demo-feed-item">Feed item <strong>#@i</strong> — served by page @Page of the fragment.</p>
+    }
+</HxInfiniteScroll>
+
+@code {
+    public const string Route = "/fragments/demo-feed";
+
+    private const int PageSize = 5;
+    private const int PageCount = 4;
+
+    [Parameter] public int Page { get; set; } = 1;
+}

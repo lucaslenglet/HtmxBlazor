@@ -1,0 +1,157 @@
+@namespace HtmxBlazor.Components
+@typeparam TItem
+@inherits HxComponentBase
+@attribute [CascadingTypeParameter(nameof(TItem))]
+
+<CascadingValue Value="this" IsFixed="true">
+    @ChildContent
+    <HxDefer>
+        <div id="@Id" class="hx-table" @attributes="AdditionalAttributes">
+            <table>
+                <thead>
+                    <tr>
+                        @foreach (var column in _columns)
+                        {
+                            if (column.SortKey is null)
+                            {
+                                <th scope="col">@column.Title</th>
+                            }
+                            else
+                            {
+                                var isSorted = string.Equals(column.SortKey, Sort, StringComparison.OrdinalIgnoreCase);
+                                <th scope="col" aria-sort="@(isSorted ? (Desc ? "descending" : "ascending") : null)">
+                                    <HxButton Get="@SortUrl(column, isSorted)"
+                                              Target="@Self"
+                                              Swap="HxSwap.OuterHtml"
+                                              class="@(isSorted ? "hx-table-sort hx-table-sorted" : "hx-table-sort")">
+                                        @column.Title<span class="hx-table-sort-icon">@(isSorted ? (Desc ? " ▼" : " ▲") : null)</span>
+                                    </HxButton>
+                                </th>
+                            }
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Items.Any())
+                    {
+                        <tr>
+                            <td class="hx-table-empty" colspan="@_columns.Count">@EmptyText</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Items)
+                        {
+                            <tr>
+                                @foreach (var column in _columns)
+                                {
+                                    <td>@column.ChildContent?.Invoke(item)</td>
+                                }
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+            @if (PageCount > 1)
+            {
+                <nav class="hx-table-pager" aria-label="Pagination">
+                    <HxButton Get="@PageUrl(Page - 1)"
+                              Target="@Self"
+                              Swap="HxSwap.OuterHtml"
+                              class="hx-table-page"
+                              disabled="@(Page <= 1)">‹ Previous</HxButton>
+                    <span class="hx-table-page-status">Page @Page / @PageCount</span>
+                    <HxButton Get="@PageUrl(Page + 1)"
+                              Target="@Self"
+                              Swap="HxSwap.OuterHtml"
+                              class="hx-table-page"
+                              disabled="@(Page >= PageCount)">Next ›</HxButton>
+                </nav>
+            }
+        </div>
+    </HxDefer>
+</CascadingValue>
+
+@code {
+    private readonly List<HxColumn<TItem>> _columns = [];
+
+    /// <summary>
+    /// Server-driven table: the sort and page state travels in the URL, every header or
+    /// pager click GETs <see cref="Url"/> and the returned fragment (the same component
+    /// re-rendered) replaces the whole table (<c>outerHTML</c> self-swap). The component
+    /// only renders: sorting and paging the data is the endpoint's job — pass the already
+    /// sorted/paged <see cref="Items"/> along with the current <see cref="Sort"/>,
+    /// <see cref="Desc"/>, <see cref="Page"/> and <see cref="PageCount"/>.
+    /// </summary>
+    [Parameter, EditorRequired] public string Id { get; set; } = default!;
+
+    /// <summary>Fragment endpoint URL re-rendering the component hosting this table.</summary>
+    [Parameter, EditorRequired] public string Url { get; set; } = default!;
+
+    /// <summary>The items of the current page, already sorted and paged.</summary>
+    [Parameter, EditorRequired] public IEnumerable<TItem> Items { get; set; } = default!;
+
+    /// <summary>Key of the current sort column (matching an <see cref="HxColumn{TItem}.SortKey"/>), if any.</summary>
+    [Parameter] public string? Sort { get; set; }
+
+    /// <summary>Whether the current sort is descending.</summary>
+    [Parameter] public bool Desc { get; set; }
+
+    /// <summary>Current page, 1-based. Defaults to 1.</summary>
+    [Parameter] public int Page { get; set; } = 1;
+
+    /// <summary>Total number of pages. The pager is only rendered when greater than 1.</summary>
+    [Parameter] public int PageCount { get; set; } = 1;
+
+    /// <summary>Name of the query parameter carrying the sort key. Defaults to <c>sort</c>.</summary>
+    [Parameter] public string SortParam { get; set; } = "sort";
+
+    /// <summary>Name of the query parameter carrying the sort direction. Defaults to <c>desc</c>.</summary>
+    [Parameter] public string DescParam { get; set; } = "desc";
+
+    /// <summary>Name of the query parameter carrying the page number. Defaults to <c>page</c>.</summary>
+    [Parameter] public string PageParam { get; set; } = "page";
+
+    /// <summary>Text shown when <see cref="Items"/> is empty. Defaults to <c>No items.</c></summary>
+    [Parameter] public string EmptyText { get; set; } = "No items.";
+
+    /// <summary>The <see cref="HxColumn{TItem}"/> declarations.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    internal void AddColumn(HxColumn<TItem> column)
+    {
+        if (!_columns.Any(c => string.Equals(c.Title, column.Title, StringComparison.Ordinal)))
+        {
+            _columns.Add(column);
+        }
+    }
+
+    private string Self => $"#{Id}";
+
+    private string SortUrl(HxColumn<TItem> column, bool isSorted)
+        => BuildUrl(column.SortKey, isSorted && !Desc, 1);
+
+    private string PageUrl(int page)
+        => BuildUrl(Sort, Desc, Math.Clamp(page, 1, PageCount));
+
+    private string BuildUrl(string? sort, bool desc, int page)
+    {
+        var query = new List<string>();
+        if (sort is not null)
+        {
+            query.Add($"{SortParam}={Uri.EscapeDataString(sort)}");
+            if (desc)
+            {
+                query.Add($"{DescParam}=true");
+            }
+        }
+        if (page > 1)
+        {
+            query.Add($"{PageParam}={page}");
+        }
+
+        return query.Count == 0
+            ? Url
+            : $"{Url}{(Url.Contains('?') ? '&' : '?')}{string.Join('&', query)}";
+    }
+}

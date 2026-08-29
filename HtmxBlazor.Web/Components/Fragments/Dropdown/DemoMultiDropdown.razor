@@ -1,0 +1,40 @@
+@namespace HtmxBlazor.Web.Components.Fragments
+@inherits HxComponentBase
+
+<div id="@TargetId" class="demo-inline">
+    <HxDropdown Id="demo-toppings" Url="@PanelUrl" Name="toppings" Values="@Values">
+        <ChildContent>Toppings (@Values.Count) ▾</ChildContent>
+        <PanelContent>
+            @* Toggling an item re-renders this whole fragment with ?open=true: shipping
+               the panel inline keeps the menu open across the outerHTML self-swap. *@
+            @if (Open)
+            {
+                <ToppingsPanelFragment Values="@Values" />
+            }
+        </PanelContent>
+    </HxDropdown>
+    <span class="demo-picked">
+        @(Values.Count == 0 ? "No toppings yet." : string.Join(", ", Values))
+    </span>
+</div>
+
+@code {
+    public const string Route = "/fragments/demo-dropdown-multi";
+
+    /// <summary>Id (and selector target) of the block re-rendered when an item is toggled.</summary>
+    public const string TargetId = "demo-dropdown-multi";
+
+    [Parameter] public IReadOnlyList<string> Values { get; set; } = [];
+
+    /// <summary>Whether to render the panel already open (set by toggle requests).</summary>
+    [Parameter] public bool Open { get; set; }
+
+    private string PanelUrl
+    {
+        get
+        {
+            var query = string.Join("&", Values.Select(v => $"values={Uri.EscapeDataString(v)}"));
+            return query.Length > 0 ? $"{ToppingsPanelFragment.Route}?{query}" : ToppingsPanelFragment.Route;
+        }
+    }
+}

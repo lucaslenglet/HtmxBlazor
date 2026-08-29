@@ -1,0 +1,70 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+@* For positional oob swaps (afterbegin:...) htmx inserts the CONTENT of the oob
+   element, not the element itself — hence the carrier div around the toast. *@
+@if (OutOfBand)
+{
+    <div hx-swap-oob="@($"{HxSwap.AfterBegin.ToAttributeValue()}:{RootSelector}")">@Toast</div>
+}
+else
+{
+    @Toast
+}
+
+@code {
+    /// <summary>
+    /// A notification toast, meant to be included <em>at the top level</em> of a fragment
+    /// response: <c>hx-swap-oob</c> pulls it out of the main swap and prepends it to the
+    /// <see cref="HxToastRoot"/> container, wherever the main content lands.
+    /// Dismissal is a GET to the empty endpoint (<c>app.MapHxDismiss()</c>) swapped over
+    /// the toast (<c>outerHTML</c>) — either from the × button or automatically after
+    /// <see cref="AutoDismiss"/> (<c>hx-trigger="load delay:Ns"</c>). No JavaScript.
+    /// </summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Visual variant, mapped to the <c>hx-toast-{variant}</c> CSS class. Defaults to <see cref="HxToastVariant.Info"/>.</summary>
+    [Parameter] public HxToastVariant Variant { get; set; } = HxToastVariant.Info;
+
+    /// <summary>
+    /// Whether the toast is swapped out-of-band into <see cref="RootSelector"/>. Defaults to
+    /// <c>true</c>. Set to <c>false</c> to render the toast in place (e.g. a flash message
+    /// on a full page render).
+    /// </summary>
+    [Parameter] public bool OutOfBand { get; set; } = true;
+
+    /// <summary>Selector of the container receiving the toast. Defaults to <see cref="HxToastRoot.DefaultTarget"/>.</summary>
+    [Parameter] public string RootSelector { get; set; } = HxToastRoot.DefaultTarget;
+
+    /// <summary>URL of the empty endpoint used to dismiss the toast.</summary>
+    [Parameter] public string DismissUrl { get; set; } = HxDismissEndpointExtensions.DefaultDismissRoute;
+
+    /// <summary>Delay before the toast dismisses itself. Defaults to 5 seconds; <c>null</c> disables auto-dismiss.</summary>
+    [Parameter] public TimeSpan? AutoDismiss { get; set; } = TimeSpan.FromSeconds(5);
+
+    /// <summary>Whether to show the × button. Defaults to <c>true</c>.</summary>
+    [Parameter] public bool ShowCloseButton { get; set; } = true;
+
+    private string? AutoDismissTrigger => AutoDismiss is null
+        ? null
+        : HxTrigger.Load().Delay(AutoDismiss.Value).ToString();
+
+    private RenderFragment Toast => @<text>
+        <div class="hx-toast hx-toast-@Variant.ToString().ToLowerInvariant()"
+             role="status"
+             hx-get="@(AutoDismiss is null ? null : DismissUrl)"
+             hx-trigger="@AutoDismissTrigger"
+             hx-swap="@(AutoDismiss is null ? null : HxSwap.OuterHtml.ToAttributeValue())"
+             @attributes="AdditionalAttributes">
+            <div class="hx-toast-body">@ChildContent</div>
+            @if (ShowCloseButton)
+            {
+                <HxButton Get="@DismissUrl"
+                          Target="closest .hx-toast"
+                          Swap="HxSwap.OuterHtml"
+                          class="hx-toast-close"
+                          aria-label="Dismiss">&times;</HxButton>
+            }
+        </div>
+    </text>;
+}

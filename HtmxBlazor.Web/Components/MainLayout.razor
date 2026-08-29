@@ -8,8 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
     <link rel="stylesheet" href="@Assets["app.css"]" />
-    <link rel="stylesheet" href="@Assets["HtmxBlazor.Web.styles.css"]" />
+    <link rel="stylesheet" href="@Assets["_content/HtmxBlazor.Components/htmx-blazor.css"]" />
     <script src="@Assets["lib/htmx/htmx.min.js"]" defer></script>
+    @* Official htmx SSE extension — only needed by HxNotificationStream. *@
+    <script src="@Assets["lib/htmx-ext-sse/dist/sse.min.js"]" defer></script>
     <ImportMap />
     <HeadOutlet />
 </head>

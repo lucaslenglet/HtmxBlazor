@@ -1,0 +1,44 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<HxButton Delete="@Url"
+          Target="@Target"
+          Swap="HxSwap.OuterHtml"
+          Confirm="@Confirm"
+          @attributes="ForwardedAttributes()">@ChildContent</HxButton>
+
+@code {
+    /// <summary>
+    /// Deletes the row containing the button: a DELETE to <see cref="Url"/> (antiforgery
+    /// header included, courtesy of <see cref="HxButton"/>) whose <em>empty</em> 200
+    /// response is swapped over <c>closest tr</c> (<c>outerHTML</c>) — the row vanishes,
+    /// no JavaScript. The response may also carry out-of-band elements (a re-rendered
+    /// counter, an <see cref="HxToast"/>...) alongside the empty main body.
+    /// </summary>
+    [Parameter, EditorRequired] public string Url { get; set; } = default!;
+
+    /// <summary>Element removed by the empty swap. Defaults to <c>closest tr</c>; use e.g. <c>closest li</c> in a list.</summary>
+    [Parameter] public string Target { get; set; } = "closest tr";
+
+    /// <summary>Optional confirmation message (<c>hx-confirm</c>, browser-native dialog).</summary>
+    [Parameter] public string? Confirm { get; set; }
+
+    /// <summary>Label of the button. Defaults to <c>Delete</c>.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; } = builder => builder.AddContent(0, "Delete");
+
+    private IReadOnlyDictionary<string, object> ForwardedAttributes()
+    {
+        var attributes = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase) { ["class"] = "hx-delete-row" };
+        if (AdditionalAttributes is not null)
+        {
+            foreach (var (key, value) in AdditionalAttributes)
+            {
+                attributes[key] = string.Equals(key, "class", StringComparison.OrdinalIgnoreCase)
+                    ? $"hx-delete-row {value}"
+                    : value;
+            }
+        }
+
+        return attributes;
+    }
+}

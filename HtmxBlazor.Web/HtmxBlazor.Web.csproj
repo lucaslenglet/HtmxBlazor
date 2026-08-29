@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HtmxBlazor.ServiceDefaults\HtmxBlazor.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\HtmxBlazor.Components\HtmxBlazor.Components.csproj" />
   </ItemGroup>
 
 </Project>

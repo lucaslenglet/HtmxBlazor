@@ -1,0 +1,16 @@
+@namespace HtmxBlazor.Components
+@inherits HxInteractiveComponentBase
+
+<form @attributes="AllAttributes()">
+    <AntiforgeryToken />
+    @ChildContent
+</form>
+
+@code {
+    /// <summary>
+    /// An htmx-driven form. The antiforgery token is rendered as a hidden field,
+    /// so htmx submits it automatically with the rest of the form values.
+    /// Set <c>Post</c> (or another verb parameter) to the fragment endpoint URL.
+    /// </summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

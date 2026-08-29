@@ -1,0 +1,199 @@
+@page "/demo"
+
+<PageTitle>HtmxBlazor.Components demo</PageTitle>
+
+<h1>HtmxBlazor.Components</h1>
+<p>
+    Every widget below is rendered with Blazor static SSR and made interactive by htmx —
+    no hand-written JavaScript.
+</p>
+
+<section class="demo-card">
+    <h2>Counter</h2>
+    <p>An <code>HxButton</code> POSTs to a fragment endpoint that re-renders the counter (antiforgery header included automatically).</p>
+    <CounterFragment Count="0" />
+</section>
+
+<section class="demo-card">
+    <h2>Active search</h2>
+    <p>An <code>HxElement</code> input debounced with the <code>HxTrigger</code> builder; results are rendered by the same component used for the initial page.</p>
+    <HxElement Tag="input"
+               type="search"
+               name="q"
+               placeholder="Search fruits…"
+               Get="@SearchFragment.Route"
+               Trigger="@(HxTrigger.On("input").Changed().Delay(TimeSpan.FromMilliseconds(300)))"
+               Target="#search-results" />
+    <div id="search-results">
+        <SearchFragment />
+    </div>
+</section>
+
+<section class="demo-card">
+    <h2>Lazy loading</h2>
+    <p>An <code>HxLazy</code> region: the page ships a placeholder, htmx fetches the slow fragment afterwards.</p>
+    <HxLazy Url="@SlowFragment.Route">
+        <Placeholder><em>Loading heavy content…</em></Placeholder>
+    </HxLazy>
+</section>
+
+<section class="demo-card">
+    <h2>Polling</h2>
+    <p>An <code>HxPoll</code> region refreshing a clock fragment every 2 seconds.</p>
+    <HxPoll Url="@ClockFragment.Route" Interval="TimeSpan.FromSeconds(2)" />
+</section>
+
+<section class="demo-card">
+    <h2>Tabs</h2>
+    <p>An <code>HxTabs</code>: each header GETs the same fragment with a different <code>?tab=</code>; only the active panel is rendered server-side.</p>
+    <DemoTabs />
+</section>
+
+<section class="demo-card">
+    <h2>Modal</h2>
+    <p>An <code>HxButton</code> fetches an <code>HxModal</code> fragment into the <code>HxModalRoot</code>; closing swaps it away via an empty endpoint.</p>
+    <HxButton Get="@DemoModal.Route" Target="@HxModalRoot.DefaultTarget">Open modal</HxButton>
+</section>
+
+<section class="demo-card">
+    <h2>Infinite scroll</h2>
+    <p>An <code>HxInfiniteScroll</code>: the sentinel at the end of the list fetches the next page when it becomes visible (<code>intersect once</code>) and is replaced by it (<code>outerHTML</code>).</p>
+    <div class="demo-feed">
+        <DemoFeed />
+    </div>
+</section>
+
+<section class="demo-card">
+    <h2>Toasts</h2>
+    <p>
+        The response swaps its main content next to the button and an <code>HxToast</code>
+        <em>out-of-band</em> (<code>hx-swap-oob</code>) into the <code>HxToastRoot</code>.
+        Toasts auto-dismiss after 5s through a delayed GET to the empty endpoint — still no JavaScript.
+    </p>
+    <div class="demo-inline">
+        <HxButton Get="@($"{NotifyFragment.Route}?variant=success")" Target="#notify-result">Save preferences</HxButton>
+        <HxButton Get="@($"{NotifyFragment.Route}?variant=error")" Target="#notify-result">Trigger an error</HxButton>
+        <span id="notify-result"></span>
+    </div>
+</section>
+
+<section class="demo-card">
+    <h2>Confirm</h2>
+    <p>
+        Deleting opens an <code>HxConfirm</code> modal; confirming POSTs the action
+        (antiforgery header included), whose response closes the modal (empty main swap)
+        and updates the list and a toast <em>out-of-band</em>.
+    </p>
+    <DemoItems />
+</section>
+
+<section class="demo-card">
+    <h2>Dropdown</h2>
+    <p>
+        An <code>HxDropdown</code>: opening GETs the panel fragment; picking an item runs its own
+        request, and the response closes the panel by raising <code>@HxDropdown.EventClose</code>
+        through <code>HX-Trigger</code>. Clicking outside hits the transparent backdrop.
+    </p>
+    <div class="demo-inline">
+        <HxDropdown Id="demo-dropdown" Url="@DemoDropdown.Route">Pick a fruit ▾</HxDropdown>
+        <span id="pick-result"></span>
+    </div>
+</section>
+
+<section class="demo-card">
+    <h2>Dropdown (multi-select)</h2>
+    <p>
+        Each <code>HxDropdownItem</code> carries its <code>Selected</code> state
+        (<code>menuitemcheckbox</code>) and toggles its value by re-rendering the host fragment
+        (<code>outerHTML</code> self-swap, selection in the URL). The re-render ships the panel
+        inline through <code>PanelContent</code>, so the menu stays open, and the selection also
+        travels as hidden inputs (<code>Name</code>/<code>Values</code>) for enclosing forms.
+    </p>
+    <DemoMultiDropdown />
+</section>
+
+<section class="demo-card">
+    <h2>Table (sort + pagination)</h2>
+    <p>An <code>HxTable</code>: the sort and page state lives in the URL; every header or pager click GETs the fragment and the whole table re-renders (<code>outerHTML</code> self-swap).</p>
+    <DemoTable />
+</section>
+
+<section class="demo-card">
+    <h2>Accordion</h2>
+    <p>An <code>HxAccordion</code>: each header GETs the same fragment with a different <code>?open=</code> (or none to close everything); only the open panel is rendered server-side.</p>
+    <DemoAccordion />
+</section>
+
+<section class="demo-card">
+    <h2>Autocomplete</h2>
+    <p>
+        An <code>HxAutocomplete</code>: keystrokes (debounced) GET the suggestions fragment into
+        the panel; picking a suggestion re-renders this block with the value set
+        (<code>outerHTML</code> self-swap), which also empties the panel. Clicking outside hits
+        the transparent backdrop.
+    </p>
+    <DemoAutocomplete />
+</section>
+
+<section class="demo-card">
+    <h2>Autocomplete (multi-select)</h2>
+    <p>
+        An <code>HxAutocomplete</code> with <code>Values</code>: picked values render as chips
+        backed by hidden inputs that accompany every search request, so the suggestions exclude
+        them. Picking a suggestion or removing a chip re-renders this block with the updated
+        list in the URL (<code>outerHTML</code> self-swap).
+    </p>
+    <DemoMultiAutocomplete />
+</section>
+
+<section class="demo-card">
+    <h2>Wizard</h2>
+    <p>
+        An <code>HxWizard</code>: every action POSTs the fields (values gathered so far travel as
+        hidden inputs) with the requested step in the URL; the whole wizard re-renders. Submitting
+        past the last step lets the endpoint render the completion panel instead.
+    </p>
+    <DemoWizard />
+</section>
+
+<section class="demo-card">
+    <h2>Delete row</h2>
+    <p>
+        An <code>HxDeleteRow</code> per row: a DELETE whose <em>empty</em> response is swapped over
+        <code>closest tr</code> — the row vanishes — while a toast arrives <em>out-of-band</em>.
+    </p>
+    <DemoRows />
+</section>
+
+<section class="demo-card">
+    <h2>Notification stream (SSE)</h2>
+    <p>
+        An <code>HxNotificationStream</code>: the official htmx <code>sse</code> extension (the one
+        extra script, still no hand-written JavaScript) opens an <code>EventSource</code> and
+        prepends each server-sent HTML fragment.
+    </p>
+    <HxNotificationStream Url="@NotificationStreamEndpoints.Route" class="demo-notifications">
+        <p class="demo-notification demo-notification-muted"><em>Waiting for the first notification…</em></p>
+    </HxNotificationStream>
+</section>
+
+<section class="demo-card">
+    <h2>Form + server-triggered events</h2>
+    <p>
+        An <code>HxForm</code> POSTs the message (antiforgery hidden field included).
+        The response fragment raises a <code>@GreetingFragment.EventMessageSent</code> event via
+        <code>HX-Trigger</code>, which the badge below listens to in order to refresh itself.
+    </p>
+    <HxForm Post="@GreetingFragment.Route" Target="#greeting">
+        <input type="text" name="name" placeholder="Your name" required />
+        <button type="submit">Say hello</button>
+    </HxForm>
+    <div id="greeting"></div>
+    <HxElement Tag="span"
+               class="demo-badge"
+               Get="@SentCountFragment.Route"
+               Trigger="@(HxTrigger.Load().Or(HxTrigger.On(GreetingFragment.EventMessageSent).From("body")))" />
+</section>
+
+<HxModalRoot />
+<HxToastRoot />

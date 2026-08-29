@@ -1,0 +1,18 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<div id="@Id" @attributes="AdditionalAttributes"></div>
+
+@code {
+    /// <summary>
+    /// Empty container that modal fragments are swapped into. Place one near the end
+    /// of the page (or in the layout), then open modals with any htmx GET targeting it:
+    /// <c>&lt;HxButton Get="/fragments/my-modal" Target="#hx-modal-root"&gt;</c>.
+    /// </summary>
+    public const string DefaultId = "hx-modal-root";
+
+    /// <summary>The default target selector: <c>#hx-modal-root</c>.</summary>
+    public const string DefaultTarget = $"#{DefaultId}";
+
+    [Parameter] public string Id { get; set; } = DefaultId;
+}

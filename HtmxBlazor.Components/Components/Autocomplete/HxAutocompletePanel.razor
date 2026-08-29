@@ -1,0 +1,23 @@
+@namespace HtmxBlazor.Components
+@inherits HxComponentBase
+
+<div class="hx-autocomplete-backdrop"
+     hx-get="@DismissUrl"
+     hx-target="closest .hx-autocomplete-panel"
+     hx-swap="@HxSwap.InnerHtml.ToAttributeValue()"></div>
+<div class="hx-autocomplete-list" role="listbox" @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>
+    /// Content of an <see cref="HxAutocomplete"/> panel, served as a fragment. Renders a
+    /// transparent full-viewport backdrop (clicking outside clears the panel with an
+    /// empty swap) followed by the suggestion list, typically a list of
+    /// <see cref="HxAutocompleteOption"/>.
+    /// </summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>URL of the empty endpoint used to close the panel.</summary>
+    [Parameter] public string DismissUrl { get; set; } = HxDismissEndpointExtensions.DefaultDismissRoute;
+}
